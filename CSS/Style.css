@@ -1,0 +1,43 @@
+body
+{
+  text-align: center;
+}
+div.mouse:hover
+{
+  color:green;
+}
+input[type="radio"]:checked ~ label
+{
+  color:red;
+}
+li:nth-child(4)
+{
+  color:pink;
+}
+li
+{
+  color:green;
+}
+.HorizontalSpin
+{
+  animation: rotation 10s infinite linear;
+}
+@keyframes rotation 
+{
+  100%{ transform:rotatey(360deg); }
+}
+.centerblock
+{
+  width: 150px;
+  height: 150px;
+  background: lightblue;
+  display: flex;
+  justify-content:center;
+  align-items: center;
+  margin: 0 auto;
+}
+ul ~ div
+{
+  color:blue;
+}
+
