@@ -1,0 +1,29 @@
+h1
+{
+  text-align: center;
+}
+
+.game-troops
+{
+  width: 100%;
+  display: inline-block;
+}
+.yours
+{
+  float: left;
+}
+.ai
+{
+  float: right;
+}
+
+.game-block
+{
+  width: 70%;
+  height: 60%;
+  margin: auto;
+  display: block;
+  margin-top: 25px;
+  border: 4px solid #d3d3d3;
+  background:#f1f1f1;
+}

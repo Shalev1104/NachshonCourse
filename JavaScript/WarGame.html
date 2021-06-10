@@ -1,0 +1,128 @@
+<html>
+  <head>
+    <title>JavaScript Challenge</title>
+    <link rel="Stylesheet" href="Style.css"/>
+    <script>
+      let bullets = [];
+      let gun;
+      let img;
+      function Initialize(){
+        myGameArea.start();
+        gun = new Gun(30,30,"images/gun.png",10,10);
+      }
+
+      let myGameArea = {
+        canvas : document.createElement("canvas"),
+
+        start : function() {
+          this.canvas.className = "game-block";
+          this.context = this.canvas.getContext('2d');
+          document.body.insertBefore(this.canvas, document.body.childNodes[4]);
+          this.interval = setInterval(updateGameArea, 20);
+          window.addEventListener('keydown', function(e) {
+            myGameArea.key = e.keyCode;
+          })
+          window.addEventListener('keyup', function(e) {
+            myGameArea.key = false;
+          })
+        },
+        clear: function() {
+          this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+      }
+
+      function updateGameArea() 
+      {
+        myGameArea.clear();
+        gun.speedX = 0;
+        gun.speedY = 0;
+
+        if (myGameArea.key == 37) {gun.speedX = -1; }  //left
+        if (myGameArea.key == 39) {gun.speedX = 1;  }  //right
+        if (myGameArea.key == 38) {gun.speedY = -1; }  // up
+        if (myGameArea.key == 40) {gun.speedY = 1;  }  // down
+        if (myGameArea.key == 32) {gun.shoot();     }  //shoot gun
+
+        gun.newPos();
+        gun.update();
+        bullets.forEach( (bullet)=> {
+          bullet.newPos() 
+          bullet.update();
+        });
+        bullet.newPos();
+        bullet.update();
+      }
+
+      class Gun{
+      constructor(width,height,source,x,y)
+      {
+        this.gamearea = myGameArea;
+        this.width = width;
+        this.height = height;
+        this.speedX = 0;
+        this.speedY = 0;
+        this.x = x;
+        this.y = y;
+        img = new Image();
+        img.src = source;
+      }
+      
+      update() {
+          myGameArea.context.drawImage(img,this.x,this.y,this.width,this.height);
+      }
+
+      newPos() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+      }
+
+      shoot() {
+        let bullet = new Bullet(11, 5, "images/bullet.gif", this.x + 27, this.y + 13);
+        bullet.newPos();
+        bullet.speedX = 1;
+        bullets.push( bullet );
+      }
+    }
+
+    class Bullet{
+      constructor(width,height,source,x,y)
+      {
+        this.gamearea = myGameArea;
+        this.width = width;
+        this.height = height;
+        this.speedX = 0;
+        this.speedY = 0;
+        this.x = x;
+        this.y = y;
+        img = new Image();
+        img.src = source;
+      }
+      update() {
+          myGameArea.context.drawImage(img,this.x,this.y,this.width,this.height);
+      }
+
+      newPos() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+      }
+    }
+    </script>
+  </head>
+  <body onload="Initialize()">
+    <h1>JavaScript Challenge</h1>
+    <div class="game-troops">
+      <div class="yours">
+        <label for="your-troops" style="text-align: center;">Choose your troops</label><br/>
+        <input type="text" name="your-troops" id="your-troops"/>
+        <input type="button" value="+" name="addTroop"/>
+        <input type="button" value="-" name="subTroop"/>
+      </div>
+      <div class="ai">
+        <label for="ai-troops">Choose AI troops</label><br/>
+        <input type="text" name="ai-troops" id="ai-troops"/>
+        <input type="button" value="+" name="addTroop"/>
+        <input type="button" value="-" name="subTroop"/>
+      </div>
+    </div>
+  </body>
+</html>
