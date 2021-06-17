@@ -3,27 +3,32 @@ h1
   text-align: center;
 }
 
-.game-troops
-{
-  width: 100%;
-  display: inline-block;
+.table {
+  display:table;
+  width:100%;
 }
-.yours
-{
-  float: left;
+.tr {
+  display:table-row;
 }
-.ai
-{
-  float: right;
+.left {
+  display:table-cell;
+  width:33%;
 }
-
+.game-mode {
+  display:table-cell;
+  text-align:center;
+  width:33%;
+}
+.right {
+  display:table-cell;
+  text-align:right;
+  width:33%;
+}
 .game-block
 {
-  width: 70%;
-  height: 60%;
+  margin-top: 20px;
   margin: auto;
   display: block;
-  margin-top: 25px;
   border: 4px solid #d3d3d3;
   background:#f1f1f1;
 }

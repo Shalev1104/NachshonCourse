@@ -1,3 +1,4 @@
+/*
 class Gun{
   constructor(width,height,source,x,y)
   {
@@ -22,9 +23,10 @@ class Gun{
   }
 
   shoot() {
-    let bullet = new Bullet(11, 5, "images/bullet.gif", this.x + 27, this.y + 13);
-    bullet.newPos();
-    bullet.speedX = 1;
-    bullets.push( bullet );
+      let bullet = new Component(11, 5, "red", this.x + 55, this.y + 30);
+      bullet.newPos();
+      bullet.speedX = 10;
+      bullets.push( bullet );
   }
 }
+*/
