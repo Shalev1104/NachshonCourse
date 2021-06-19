@@ -1,16 +1,19 @@
-let leftBullets = [];
-let rightBullets = [];
+let leftBullets;
+let rightBullets;
 let gun1;
 let gun2;
-let countPX =0;
+let shotSound;
+let deathSound;
+let preGameSound;
 let canvasWidth = window.innerWidth * 0.7;
 let canvasHeight = window.innerHeight * 0.7;
 let borderGunWidth = 15;
 let borderGunHeight = 34;
-let FPS = performance.now();
+let FPS = 60;
 let pc = true;
 let velocity = 5;
-      
+let countDown = 5;
+    
 function changeGameMode(clickedId) 
       {
         const text = "Gun Amount";
@@ -18,6 +21,7 @@ function changeGameMode(clickedId)
         rightBullets = [];
         if(document.getElementById(clickedId).id == "ai-mode")
         {
+          document.getElementById("visibillity").style.visibility = "hidden";
           pc = true;
           resetCoordinates();
           document.getElementById("left-id").innerHTML = "Choose " + text;
@@ -25,6 +29,7 @@ function changeGameMode(clickedId)
         }
         else if(document.getElementById(clickedId).id == "2-players")
         {
+          document.getElementById("visibillity").style.visibility = "visible";
           gun2.speedY = 0;
           gun2.speedX = 0;
           resetCoordinates();
@@ -41,20 +46,28 @@ function changeGameMode(clickedId)
         gun2.x = canvasWidth - 100;
         gun2.y = 250;
       }
-      function selected()
+      function isValid()
       {
-        
-      }
-
-      function aiSelected()
-      {
-        
+        if(!isNaN(document.getElementById("your-guns").value) != "" && !isNaN(document.getElementById("ai-guns").value))
+        {
+          document.getElementById("startGame").style.visibility = "collapse";
+          Initialize();
+        }
+        else
+        {
+          alert("Select the number of weapons")
+        }
       }
 
       function Initialize(){
+        preGameSound = new Sound("soundeffects/PreGame.mp3");
+        shotSound = new Sound("soundeffects/GunShot.mp3");
+        deathSound = new Sound("soundeffects/Death.mp3");
         myGameArea.start();
         gun1 = new Gun(80,80,"images/YourGun.gif",10,250);
         gun2 = new Gun(80,80,"images/AiGun.gif",canvasWidth-100,250);
+        leftBullets = [];
+        rightBullets = [];
       }
 
       let myGameArea = {
@@ -66,8 +79,8 @@ function changeGameMode(clickedId)
           this.canvas.className = "game-block";
           this.context = this.canvas.getContext('2d');
           document.body.insertBefore(this.canvas, document.body.childNodes[4]);
-          this.interval = setInterval(updateGameArea, 20);
-          this.interval += setInterval(aiMovement,750);
+          preGameSound.play();
+          this.interval = setInterval(preGame, 1000);
           window.addEventListener('keydown', function(e) {
               myGameArea.key = e.keyCode;
           })
@@ -77,39 +90,71 @@ function changeGameMode(clickedId)
         },
         clear: function() {
           this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        },
+        stop: function() {
+          clearInterval(this.interval);
         }
       }
 
-      function BulletsShots()
+      function preGame()
+      {
+        if(countDown > 0)
+        {
+          document.getElementById("countDown").innerHTML = countDown;
+          document.getElementById("countDown").style.visibility = "visible";
+        }
+        else if(countDown == 0)
+        {
+          document.getElementById("countDown").innerHTML = "GO!";
+        }
+        else
+        {
+          document.getElementById("countDown").style.visibility = "collapse";
+          clearInterval(myGameArea.interval);
+          myGameArea.interval = setInterval(updateGameArea, 20);
+          myGameArea.interval += setInterval(aiMovement,750);
+        }
+        countDown--;
+      }
+
+      function restartGame() 
+      {
+        resetCoordinates();
+        leftBullets = [];
+        rightBullets = [];
+        myGameArea.key = null;
+      }
+
+      function bulletsShots()
       {
         leftBullets.forEach(left => {
           if(isHit(left,gun2))
           {
-            setTimeout(() => {
+            deathSound.play();
               if(pc)
               {
-                alert("You Win");
+                alert("Winner Winner Chicken Dinner");
               }
               else
               {
                 alert("Player 1 Win");
               }
-            },250);
+              restartGame(); 
           }
         });
         rightBullets.forEach(right => {
           if(isHit(right,gun1))
           {
-            setTimeout(() => {
+            deathSound.play();
               if(pc)
               {
-                alert("You Lose");
+                alert("Loser");
               }
               else
               {
                 alert("Player 2 Win");
               }
-            },250);
+              restartGame();
           }
         });
       }
@@ -129,16 +174,22 @@ function changeGameMode(clickedId)
         {
           switch(myGameArea.key)
           {
-            case 96 : gun1.shoot(true); break;
-            case 37 : gun1.speedX = -velocity; break;
-            case 38 : gun1.speedY = -velocity; break;
-            case 39 : gun1.speedX = velocity; break;
-            case 40 : gun1.speedY = velocity;
+            case 32 : gun1.shoot(true); break;
+            case 65 : gun1.speedX = -velocity; break;
+            case 87 : gun1.speedY = -velocity; break;
+            case 68 : gun1.speedX = velocity; break;
+            case 83 : gun1.speedY = velocity;
           }
+        }
+        else if(pc)
+        {
+          alert("Loser");
+          restartGame();
         }
         else
         {
-          alert("You Lose");
+          alert("Player 2 Win");
+          restartGame();
         }
         
         if(!pc) 
@@ -149,16 +200,17 @@ function changeGameMode(clickedId)
           {
             switch(myGameArea.key)
             {
-              case 32 : gun2.shoot(false); break;
-              case 65 : gun2.speedX = -velocity; break;
-              case 87 : gun2.speedY = -velocity; break;
-              case 68 : gun2.speedX = velocity; break;
-              case 83 : gun2.speedY = velocity;
+              case 96 : gun2.shoot(false); break;
+              case 37 : gun2.speedX = -velocity; break;
+              case 38 : gun2.speedY = -velocity; break;
+              case 39 : gun2.speedX = velocity; break;
+              case 40 : gun2.speedY = velocity;
             }
           }
           else
           {
             alert("Player 1 Win");
+            restartGame();
           }
         }
 
@@ -175,7 +227,7 @@ function changeGameMode(clickedId)
           bullet.newPos() 
           bullet.update();
         });
-        BulletsShots();
+        bulletsShots();
       }
 
       function aiMovement()
@@ -184,23 +236,55 @@ function changeGameMode(clickedId)
         {
           gun2.speedX = 0;
           gun2.speedY = 0;
-  
-          let rndNum = Math.floor(Math.random() * 2);
-          let speed = (Math.floor(Math.random() * 11) - 5);
+          let rndMovementGen = Math.floor(Math.random() * 2);
+          let aiVelocity;
+          if(Math.floor(Math.random() * 2) == 0)
+          {
+            aiVelocity = velocity;
+          }
+          else
+          {
+            aiVelocity = -velocity;
+          }
 
           if(isMoveable(gun2.width,gun2.height,gun2.x,gun2.y,velocity)) 
           {
-            if(rndNum == 0 && isMoveable(gun2.width,gun2.height,gun2.x + FPS * speed ,gun2.y,velocity)) {
-              gun2.speedX = speed;
+            if(rndMovementGen == 0)
+            {
+              if(isMoveable(gun2.width,gun2.height,gun2.x + FPS * aiVelocity ,gun2.y,0)) {
+                gun2.speedX = aiVelocity;
+              }
+              else if(isMoveable(gun2.width,gun2.height,gun2.x + FPS * -aiVelocity ,gun2.y,0)) {
+                gun2.speedX = -aiVelocity;
+              }
+      
+              else if(isMoveable(gun2.width,gun2.height,gun2.x,gun2.y + FPS * aiVelocity ,0)) {
+                gun2.speedY = aiVelocity;
+              }
+              else if(isMoveable(gun2.width,gun2.height,gun2.x,gun2.y + FPS * -aiVelocity ,0)) {
+                gun2.speedY = -aiVelocity;
+              }
             }
-    
-            else if(rndNum == 1 && isMoveable(gun2.width,gun2.height,gun2.x,gun2.y + FPS * speed ,velocity))           {
-              gun2.speedY = speed;
+            else
+            {
+              if(isMoveable(gun2.width,gun2.height,gun2.x,gun2.y + FPS * aiVelocity ,0)) {
+                gun2.speedY = aiVelocity;
+              }
+              else if(isMoveable(gun2.width,gun2.height,gun2.x,gun2.y + FPS * -aiVelocity ,0)) {
+                gun2.speedY = -aiVelocity;
+              }
+              else if(isMoveable(gun2.width,gun2.height,gun2.x + FPS * aiVelocity ,gun2.y,0)) {
+                gun2.speedX = aiVelocity;
+              }
+              else if(isMoveable(gun2.width,gun2.height,gun2.x + FPS * -aiVelocity ,gun2.y,0)) {
+                gun2.speedX = -aiVelocity;
+              }
             }
           }
           else
           {
             alert("You Win");
+            restartGame();
           }
           
           gun2.shoot(false); 
@@ -210,6 +294,25 @@ function changeGameMode(clickedId)
       function isMoveable(width,height,x,y,velocity) 
       {
         return (x - velocity >= -borderGunWidth && y - velocity >= -borderGunHeight && x + velocity <= canvasWidth - width + 25 && y + velocity <= canvasHeight - height + 10);
+      }
+      
+      function Sound(src) {
+        this.sound = document.createElement("audio");
+        this.sound.src = src;
+        this.sound.setAttribute("preload", "auto");
+        this.sound.setAttribute("controls", "none");
+        this.sound.style.display = "none";
+        document.body.appendChild(this.sound);
+        this.play = function(){
+          this.sound.play();
+        }
+        this.stop = function(){
+          this.sound.pause();
+          this.sound.currentTime = 0;
+        }
+        this.isPlaying = function(){
+          return (this.sound.currentTime > 0 && !this.sound.paused);
+        }
       }
 
       function Gun(width,height,source,x,y)
@@ -235,14 +338,19 @@ function changeGameMode(clickedId)
         this.shoot = function(isP1) {
           if(isP1) 
           {
-            let bullet = new Component(11, 5, "orange", this.x + 55, this.y + 30);
+            let bullet = new Component(11, 5, "green", this.x + 55, this.y + 30);
             bullet.newPos();
             bullet.speedX = 10;
             leftBullets.push( bullet );
+            if(shotSound.isPlaying())
+            {
+              shotSound.stop();
+            }
+            shotSound.play();
           }
           else
           {
-              let bullet = new Component(11, 5, "orange", this.x + 15, this.y + 30);
+              let bullet = new Component(11, 5, "red", this.x + 15, this.y + 30);
               bullet.newPos();
               bullet.speedX = -10;
               rightBullets.push( bullet );
@@ -259,9 +367,8 @@ function changeGameMode(clickedId)
       this.y = y;
       this.color = color;
       this.update = function() {
-        ctx = myGameArea.context;
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        myGameArea.context.fillStyle = this.color;
+        myGameArea.context.fillRect(this.x, this.y, this.width, this.height);
       }
       this.newPos = function() {
         this.x += this.speedX;
