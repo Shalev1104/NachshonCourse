@@ -3,17 +3,17 @@
     <title>JavaScript Challenge</title>
     <link rel="Stylesheet" href="Style.css"/>
     <script src="Game.js"></script>
-    <script src="Gun.js"></script>
   </head>
   <body>
     <h1>JavaScript Challenge</h1>
-    <div class="table">
-      <div class="tr">
-        <div class="left">
-          <label for="your-guns" id="left-id" style="margin-left: 15px;">Choose Gun Amount</label><br/>
+    <table width=100%>
+      <tr>
+        <td class="left">
+          <label for="your-guns" id="left-id">Choose Gun Amount</label>
           <input type="text" name="your-guns" id="your-guns"/>
-        </div>
-        <div class = "game-mode">
+          <span id="left-hearts" style="visibility: collapse;"><span class="heart"></span><span id="leftAmount"></span></span>
+        </td>
+        <td class="game-mode" id="game-mode">
           <form>
             <input type="radio" id="ai-mode" name="mode" value="AI" checked  onchange="changeGameMode(this.id)"/>
             <label for="ai-mode">AI</label>
@@ -21,13 +21,14 @@
             <input type="radio" id="2-players" name="mode" value="2 Players" onchange="changeGameMode(this.id)"/>
             <label for="2-players">2 Players</label>
           </form>
-        </div>
-        <div class="right">
-          <label for="ai-guns" id="right-id" style="margin-right: 65px;">Choose AI Gun Amount</label><br/>
+        </td>
+        <td class="right">
+          <span id="right-hearts" style="visibility: collapse;"><span id="rightAmount"></span><span class="heart"></span></span>
+          <label for="ai-guns" id="right-id">Choose AI Gun Amount</label>
           <input type="text" name="ai-guns" id="ai-guns"/>
-        </div>
-      </div>
-    </div>
+        </td>
+      </tr>
+    </table>
     <span style="visibility: collapse;" id="countDown" class="centerDisplay"></span>
     <button class="centerDisplay" onclick="isValid()" id="startGame">Start Game</button>
     <div class = "P1keyboards">
@@ -43,7 +44,7 @@
     <span style="bottom: 53; left: 206; position: absolute; font-size: 20px;">Shoot</span>
     <div id="visibillity" style="visibility: hidden;">
     <div class = "P2keyboards">
-      <img style="margin-right: 50px;" src="images/Keyboards/Zero.png">
+      <img style="margin-right: 50px;" src="images/Keyboards/Enter.png">
       <img src="images/Keyboards/Left.png">
       <img src="images/Keyboards/Down.png">
       <img src="images/Keyboards/Right.png">

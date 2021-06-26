@@ -2,9 +2,9 @@ let leftBullets;
 let rightBullets;
 let gun1;
 let gun2;
+let preGameSound;
 let shotSound;
 let deathSound;
-let preGameSound;
 let canvasWidth = window.innerWidth * 0.7;
 let canvasHeight = window.innerHeight * 0.7;
 let borderGunWidth = 15;
@@ -12,7 +12,12 @@ let borderGunHeight = 34;
 let FPS = 60;
 let pc = true;
 let velocity = 5;
-let countDown = 5;
+let countDown;
+let leftHearts;
+let rightHearts;
+let restartButton;
+let gameInterval;
+let aiInterval;
     
 function changeGameMode(clickedId) 
       {
@@ -23,16 +28,12 @@ function changeGameMode(clickedId)
         {
           document.getElementById("visibillity").style.visibility = "hidden";
           pc = true;
-          resetCoordinates();
           document.getElementById("left-id").innerHTML = "Choose " + text;
           document.getElementById("right-id").innerHTML = "Choose AI " + text;
         }
         else if(document.getElementById(clickedId).id == "2-players")
         {
           document.getElementById("visibillity").style.visibility = "visible";
-          gun2.speedY = 0;
-          gun2.speedX = 0;
-          resetCoordinates();
           pc = false;
           document.getElementById("left-id").innerHTML = "Player 1 " + text;
           document.getElementById("right-id").innerHTML = "Player 2 " + text;
@@ -41,35 +42,46 @@ function changeGameMode(clickedId)
 
       function resetCoordinates() 
       {
-        gun1.x = 10;
-        gun1.y = 250;
-        gun2.x = canvasWidth - 100;
-        gun2.y = 250;
+        gun1.x = canvasWidth * 0.1;
+        gun1.y = canvasHeight / 2;
+        gun2.x = canvasWidth * 0.9;
+        gun2.y = canvasHeight / 2;
       }
       function isValid()
       {
-        if(!isNaN(document.getElementById("your-guns").value) != "" && !isNaN(document.getElementById("ai-guns").value))
+        leftHearts = document.getElementById("your-guns").value;
+        rightHearts = document.getElementById("ai-guns").value;
+        if(!isNaN(leftHearts) && !isNaN(rightHearts) && leftHearts != '' && rightHearts != '' && leftHearts > 0 && rightHearts > 0)
         {
           document.getElementById("startGame").style.visibility = "collapse";
+          document.getElementById("left-id").style.visibility = "collapse";
+          document.getElementById("right-id").style.visibility = "collapse";
+          document.getElementById("your-guns").style.visibility = "collapse";
+          document.getElementById("ai-guns").style.visibility = "collapse";
+          document.getElementById("game-mode").style.visibility = "collapse";
+          document.getElementById("left-hearts").style.visibility = "visible";
+          document.getElementById("right-hearts").style.visibility = "visible";
+          document.getElementById("leftAmount").innerHTML = leftHearts;
+          document.getElementById("rightAmount").innerHTML = rightHearts;
           Initialize();
         }
         else
         {
-          alert("Select the number of weapons")
+          alert("Select valid amount")
         }
       }
 
-      function Initialize(){
+      function Initialize()
+      {
         preGameSound = new Sound("soundeffects/PreGame.mp3");
         shotSound = new Sound("soundeffects/GunShot.mp3");
         deathSound = new Sound("soundeffects/Death.mp3");
         myGameArea.start();
-        gun1 = new Gun(80,80,"images/YourGun.gif",10,250);
-        gun2 = new Gun(80,80,"images/AiGun.gif",canvasWidth-100,250);
+        gun1 = new Gun(80,80,"images/YourGun.gif",canvasWidth * 0.1,canvasHeight / 2);
+        gun2 = new Gun(80,80,"images/AiGun.gif",canvasWidth * 0.9,canvasHeight / 2);
         leftBullets = [];
         rightBullets = [];
       }
-
       let myGameArea = {
         canvas : document.createElement("canvas"),
 
@@ -77,9 +89,13 @@ function changeGameMode(clickedId)
           this.canvas.width  = canvasWidth;
           this.canvas.height = canvasHeight;
           this.canvas.className = "game-block";
+          this.canvas.id = "canvas-id"
           this.context = this.canvas.getContext('2d');
+          this.pause = false;
+          this.frameNo = 0;
           document.body.insertBefore(this.canvas, document.body.childNodes[4]);
           preGameSound.play();
+          countDown = 5;
           this.interval = setInterval(preGame, 1000);
           window.addEventListener('keydown', function(e) {
               myGameArea.key = e.keyCode;
@@ -92,7 +108,9 @@ function changeGameMode(clickedId)
           this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         },
         stop: function() {
-          clearInterval(this.interval);
+          clearInterval(gameInterval)
+          clearInterval(aiInterval);
+          this.pause = true;
         }
       }
 
@@ -111,18 +129,75 @@ function changeGameMode(clickedId)
         {
           document.getElementById("countDown").style.visibility = "collapse";
           clearInterval(myGameArea.interval);
-          myGameArea.interval = setInterval(updateGameArea, 20);
-          myGameArea.interval += setInterval(aiMovement,750);
+          gameInterval = setInterval(updateGameArea, 20);
+          aiInterval = setInterval(aiMovement,650); 
         }
         countDown--;
       }
 
-      function restartGame() 
+      function restartRound() 
       {
+        document.getElementById("leftAmount").innerHTML = leftHearts;
+        document.getElementById("rightAmount").innerHTML = rightHearts;
         resetCoordinates();
         leftBullets = [];
         rightBullets = [];
         myGameArea.key = null;
+      }
+
+      function gameOver()
+      {
+        document.getElementById("leftAmount").innerHTML = leftHearts;
+        document.getElementById("rightAmount").innerHTML = rightHearts;
+        leftBullets = [];
+        rightBullets = [];
+        myGameArea.stop();
+        myGameArea.clear();
+        document.getElementById("canvas-id").remove();
+        if(pc)
+        {
+          if(rightHearts == 0)
+          {
+            document.getElementById("startGame").innerHTML = "Winner";
+          }
+          else if(leftHearts == 0)
+          {
+            document.getElementById("startGame").innerHTML = "Loser";
+          }
+        }
+        else
+        {
+          if(rightHearts == 0)
+          {
+            document.getElementById("startGame").innerHTML = "Player 1 Win";
+          }
+          else if(leftHearts == 0)
+          {
+            document.getElementById("startGame").innerHTML = "Player 2 Win";
+          }
+        }
+        document.getElementById("startGame").disabled = true;
+        document.getElementById("startGame").style.visibility = "visible";
+        restartButton = document.createElement("button");
+        restartButton.innerHTML = "Restart";
+        document.body.insertBefore(restartButton, document.body.childNodes[4]);
+        restartButton.style.display = "block";
+        restartButton.style.margin = "0 auto";
+        restartButton.style.fontSize = "25px";
+        restartButton.onclick = () =>
+        {
+          document.getElementById("startGame").innerHTML = "Start Game";
+          document.getElementById("startGame").disabled = false;
+          document.getElementById("startGame").style.visibility = "visible";
+          document.getElementById("left-id").style.visibility = "visible";
+          document.getElementById("right-id").style.visibility = "visible";
+          document.getElementById("your-guns").style.visibility = "visible";
+          document.getElementById("ai-guns").style.visibility = "visible";
+          document.getElementById("game-mode").style.visibility = "visible";
+          document.getElementById("left-hearts").style.visibility = "collapse";
+          document.getElementById("right-hearts").style.visibility = "collapse";
+          restartButton.remove();
+        }
       }
 
       function bulletsShots()
@@ -131,30 +206,46 @@ function changeGameMode(clickedId)
           if(isHit(left,gun2))
           {
             deathSound.play();
+            rightHearts--;
+            if(rightHearts > 0)
+            {
               if(pc)
               {
-                alert("Winner Winner Chicken Dinner");
+                alert("Round Win. " + rightHearts + " Hearts left");
               }
               else
               {
-                alert("Player 1 Win");
+                alert("Player 1 Round Win. " + rightHearts + " Hearts left");
               }
-              restartGame(); 
+              restartRound(); 
+            }
+            else
+            {
+              gameOver();
+            }
           }
         });
         rightBullets.forEach(right => {
           if(isHit(right,gun1))
           {
             deathSound.play();
+            leftHearts--;
+            if(leftHearts > 0)
+            {
               if(pc)
               {
-                alert("Loser");
+                alert("Round Lose. " + leftHearts + " Hearts left");
               }
               else
               {
-                alert("Player 2 Win");
+                alert("Player 2 Round Win. " + leftHearts + " Hearts left");
               }
-              restartGame();
+              restartRound();
+            }
+            else
+            {
+              gameOver();
+            }
           }
         });
       }
@@ -183,13 +274,29 @@ function changeGameMode(clickedId)
         }
         else if(pc)
         {
-          alert("Loser");
-          restartGame();
+          leftHearts--;
+          if(leftHearts > 0)
+          {
+            alert("Round Lose-Out of bounds. " + leftHearts + " Hearts left");
+            restartRound();
+          }
+          else
+          {
+            gameOver();
+          }
         }
         else
         {
-          alert("Player 2 Win");
-          restartGame();
+          leftHearts--;
+          if(leftHearts > 0)
+          {
+            alert("Player 1 Round Lose-Out of bounds. " + leftHearts + " Hearts left");
+            restartRound();
+          }
+          else
+          {
+            gameOver();
+          }
         }
         
         if(!pc) 
@@ -200,7 +307,7 @@ function changeGameMode(clickedId)
           {
             switch(myGameArea.key)
             {
-              case 96 : gun2.shoot(false); break;
+              case 13 : gun2.shoot(false); break;
               case 37 : gun2.speedX = -velocity; break;
               case 38 : gun2.speedY = -velocity; break;
               case 39 : gun2.speedX = velocity; break;
@@ -209,8 +316,16 @@ function changeGameMode(clickedId)
           }
           else
           {
-            alert("Player 1 Win");
-            restartGame();
+            rightHearts--;
+            if(rightHearts > 0)
+            {
+              alert("Player 2 Round Lose-Out of bounds. " + rightHearts + " Hearts left");
+              restartRound();
+            }
+            else
+            {
+              gameOver();
+            }
           }
         }
 
@@ -240,15 +355,13 @@ function changeGameMode(clickedId)
           let aiVelocity;
           if(Math.floor(Math.random() * 2) == 0)
           {
-            aiVelocity = velocity;
+            aiVelocity = Math.floor(Math.random() * 2) + 3;
           }
           else
           {
-            aiVelocity = -velocity;
+            aiVelocity = Math.floor(Math.random() * 2) + -3;
           }
 
-          if(isMoveable(gun2.width,gun2.height,gun2.x,gun2.y,velocity)) 
-          {
             if(rndMovementGen == 0)
             {
               if(isMoveable(gun2.width,gun2.height,gun2.x + FPS * aiVelocity ,gun2.y,0)) {
@@ -280,12 +393,6 @@ function changeGameMode(clickedId)
                 gun2.speedX = -aiVelocity;
               }
             }
-          }
-          else
-          {
-            alert("You Win");
-            restartGame();
-          }
           
           gun2.shoot(false); 
         }

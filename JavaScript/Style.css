@@ -3,24 +3,14 @@ h1
   text-align: center;
 }
 
-.table {
-  display:table;
-  width:100%;
-}
-.tr {
-  display:table-row;
-}
 .left {
-  display:table-cell;
   width:33%;
 }
 .game-mode {
-  display:table-cell;
   text-align:center;
   width:33%;
 }
 .right {
-  display:table-cell;
   text-align:right;
   width:33%;
 }
@@ -60,4 +50,34 @@ h1
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.heart {
+  background-color: red;
+  display: inline-block;
+  height: 10px;
+  margin: 0 10px;
+  position: relative;
+  top: 0;
+  transform: rotate(-45deg);
+  width: 10px;
+}
+
+.heart:before,
+.heart:after {
+  content: "";
+  background-color: red;
+  border-radius: 50%;
+  height: 10px;
+  position: absolute;
+  width: 10px;
+}
+
+.heart:before {
+  top: -5px;
+  left: 0;
+}
+
+.heart:after {
+  left: 5px;
+  top: 0;
 }
