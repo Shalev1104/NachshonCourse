@@ -1,3 +1,7 @@
+html
+{
+  background-image: linear-gradient(140deg, #FEAC5E 0%, #C779D0 50%, #4BC0C8 75%);
+}
 h1
 {
   text-align: center;
@@ -38,7 +42,8 @@ h1
 {
   height: 250px;
   width: 250px;
-  background-color: rgb(128,0,0);
+  background-image: linear-gradient(#6441A5 , #2a0845);
+
   color:white;
   font-size: 75px;
   border-radius: 50%;
@@ -51,6 +56,19 @@ h1
   align-items: center;
   justify-content: center;
 }
+
+.loader {
+  border: 5px solid #f3f3f3;
+  border-radius: 50%;
+  width: 100px;
+  height: 100px;
+  animation: spin 5s linear;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .heart {
   background-color: red;
   display: inline-block;
@@ -80,4 +98,61 @@ h1
 .heart:after {
   left: 5px;
   top: 0;
+}
+
+#left-hearts, #right-hearts, #countDown
+{
+  visibility: collapse;
+}
+#spaceShootDisplay
+{
+  margin-left: 50px;
+}
+#WDisplay
+{
+  bottom: 53;
+  left: 53; 
+  position: absolute;
+}
+#UpDisplay
+{
+  bottom: 53; 
+  right: 53; 
+  position: absolute;
+}
+#movementTextDisplay1
+{
+  bottom: 106; 
+  left: 35; 
+  position: absolute; 
+  font-size: 20px;
+}
+#shootTextDisplay1
+{
+  bottom: 53; 
+  left: 206; 
+  position: absolute; 
+  font-size: 20px;
+}
+#movementTextDisplay2
+{
+  bottom: 106; 
+  right: 35; 
+  position: absolute; 
+  font-size: 20px;
+}
+#shootTextDisplay2
+{
+  bottom: 53; 
+  right: 206; 
+  position: absolute; 
+  font-size: 20px;
+}
+#visibillity
+{
+  visibility: hidden;
+}
+#enterShootDisplay
+{
+  margin-right: 50px;
 }

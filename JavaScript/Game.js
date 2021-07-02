@@ -10,18 +10,25 @@ const canvasHeight = window.innerHeight * 0.7;
 const borderGunWidth = 15;
 const borderGunHeight = 34;
 const FPS = 60;
+const milliseconds = 5;
+const radius = 50;
+const velocity = 5;
 let pc = true;
-let velocity = 5;
 let countDown;
 let leftHearts;
 let rightHearts;
 let restartButton;
 let gameInterval;
 let aiInterval;
-    
+let outOfAmmo1 = false;
+let outOfAmmo2 = false;
+let circleAnimation1;
+let circleAnimation2;
+let switcher = false;
+
 function changeGameMode(clickedId) 
       {
-        const text = "Gun Amount";
+        const text = "life amount";
         leftBullets = [];
         rightBullets = [];
         if(document.getElementById(clickedId).id == "ai-mode")
@@ -92,16 +99,22 @@ function changeGameMode(clickedId)
           this.canvas.id = "canvas-id"
           this.context = this.canvas.getContext('2d');
           this.pause = false;
-          this.frameNo = 0;
           document.body.insertBefore(this.canvas, document.body.childNodes[4]);
           preGameSound.play();
           countDown = 5;
+          this.keyMap = [];
           this.interval = setInterval(preGame, 1000);
-          window.addEventListener('keydown', function(e) {
-              myGameArea.key = e.keyCode;
+          
+          window.addEventListener('keydown', (e)=>{
+            if(!this.keyMap.includes(e.keyCode)){
+                this.keyMap.push(e.keyCode);
+            }
           })
-          window.addEventListener('keyup', function(e) {
-            myGameArea.key = false;
+        
+          window.addEventListener('keyup', (e)=>{
+              if(this.keyMap.includes(e.keyCode)){
+                  this.keyMap.splice(this.keyMap.indexOf(e.keyCode), 1);
+              }
           })
         },
         clear: function() {
@@ -113,6 +126,10 @@ function changeGameMode(clickedId)
           this.pause = true;
         }
       }
+
+      function key(x){
+        return (myGameArea.keyMap.includes(x));
+    }
 
       function preGame()
       {
@@ -137,23 +154,37 @@ function changeGameMode(clickedId)
 
       function restartRound() 
       {
+        clearInterval(circleAnimation1);
+        clearInterval(circleAnimation2);
+        outOfAmmo1 = false;
+        outOfAmmo2 = false;
         document.getElementById("leftAmount").innerHTML = leftHearts;
         document.getElementById("rightAmount").innerHTML = rightHearts;
         resetCoordinates();
         leftBullets = [];
         rightBullets = [];
-        myGameArea.key = null;
+        myGameArea.keyMap = [];
       }
 
       function gameOver()
       {
+        clearInterval(circleAnimation1);
+        clearInterval(circleAnimation2);
+        outOfAmmo1 = false;
+        outOfAmmo2 = false;
         document.getElementById("leftAmount").innerHTML = leftHearts;
         document.getElementById("rightAmount").innerHTML = rightHearts;
         leftBullets = [];
         rightBullets = [];
         myGameArea.stop();
         myGameArea.clear();
-        document.getElementById("canvas-id").remove();
+
+        const checker = document.getElementById("canvas-id");
+        if (typeof(checker) != 'undefined' && checker != null)
+        {
+          document.getElementById("canvas-id").remove();
+        }
+
         if(pc)
         {
           if(rightHearts == 0)
@@ -179,7 +210,7 @@ function changeGameMode(clickedId)
         document.getElementById("startGame").disabled = true;
         document.getElementById("startGame").style.visibility = "visible";
         restartButton = document.createElement("button");
-        restartButton.innerHTML = "Restart";
+        restartButton.innerHTML = "RESTART";
         document.body.insertBefore(restartButton, document.body.childNodes[4]);
         restartButton.style.display = "block";
         restartButton.style.margin = "0 auto";
@@ -217,12 +248,13 @@ function changeGameMode(clickedId)
               {
                 alert("Player 1 Round Win. " + rightHearts + " Hearts left");
               }
-              restartRound(); 
+              restartRound();
             }
             else
             {
               gameOver();
             }
+            return;
           }
         });
         rightBullets.forEach(right => {
@@ -246,6 +278,7 @@ function changeGameMode(clickedId)
             {
               gameOver();
             }
+            return;
           }
         });
       }
@@ -255,22 +288,34 @@ function changeGameMode(clickedId)
         return (bullet.x >= gun.x + borderGunWidth && bullet.x <= gun.x + gun.width && bullet.y >= gun.y + borderGunHeight -10 && bullet.y <= gun.y + gun.height -6);
       }
 
+      function isSwitchSides(switcher)
+      {
+        return (switcher ? gun1.x < gun2.x : gun1.x > gun2.x);
+      }
+
       function updateGameArea() 
       {
         myGameArea.clear();
         gun1.speedX = 0;
         gun1.speedY = 0;
 
+        if(isSwitchSides(switcher))
+        {
+          switcher = !switcher;
+          const tempSrc = gun1.img.src;
+          gun1.img.src = gun2.img.src;
+          gun2.img.src = tempSrc;
+          gun1.update();
+          gun2.update();
+        }
+
         if(isMoveable(gun1.width,gun1.height,gun1.x,gun1.y,velocity))
         {
-          switch(myGameArea.key)
-          {
-            case 32 : gun1.shoot(true); break;
-            case 65 : gun1.speedX = -velocity; break;
-            case 87 : gun1.speedY = -velocity; break;
-            case 68 : gun1.speedX = velocity; break;
-            case 83 : gun1.speedY = velocity;
-          }
+          if(key(32)) { gun1.shoot(true);         }
+          if(key(65)) { gun1.speedX = -velocity;  }
+          if(key(87)) { gun1.speedY = -velocity;  }
+          if(key(68)) { gun1.speedX = velocity;   }
+          if(key(83)) { gun1.speedY = velocity;   }
         }
         else if(pc)
         {
@@ -305,14 +350,11 @@ function changeGameMode(clickedId)
           gun2.speedY = 0;
           if(isMoveable(gun2.width,gun2.height,gun2.x,gun2.y,velocity))
           {
-            switch(myGameArea.key)
-            {
-              case 13 : gun2.shoot(false); break;
-              case 37 : gun2.speedX = -velocity; break;
-              case 38 : gun2.speedY = -velocity; break;
-              case 39 : gun2.speedX = velocity; break;
-              case 40 : gun2.speedY = velocity;
-            }
+            if(key(13)) { gun2.shoot(false);        }
+            if(key(37)) { gun2.speedX = -velocity;  }
+            if(key(38)) { gun2.speedY = -velocity;  }
+            if(key(39)) { gun2.speedX = velocity;   }
+            if(key(40)) { gun2.speedY = velocity;   }
           }
           else
           {
@@ -442,27 +484,120 @@ function changeGameMode(clickedId)
           this.y += this.speedY;
         }
       
-        this.shoot = function(isP1) {
-          if(isP1) 
+        this.shoot = function(left) {
+          if(!switcher) 
           {
-            let bullet = new Component(11, 5, "green", this.x + 55, this.y + 30);
-            bullet.newPos();
-            bullet.speedX = 10;
-            leftBullets.push( bullet );
-            if(shotSound.isPlaying())
+            if(!outOfAmmo1 && left)
             {
-              shotSound.stop();
+              let bullet = new Component(11, 5, "#00FF00", this.x + 55, this.y + 30);
+              bullet.newPos();
+              bullet.speedX = 10;
+              leftBullets.push( bullet );
+              if(shotSound.isPlaying()) { shotSound.stop(); }
+              shotSound.play();
+              if(leftBullets.length % 20 == 0) 
+              {
+                outOfAmmo1 = true;
+                leftReload(2, 7);
+              } 
             }
-            shotSound.play();
-          }
-          else
-          {
-              let bullet = new Component(11, 5, "red", this.x + 15, this.y + 30);
+            else if(!outOfAmmo2 && !left)
+            {
+              let bullet = new Component(11, 5, "#FF0000", this.x + 15, this.y + 30);
               bullet.newPos();
               bullet.speedX = -10;
               rightBullets.push( bullet );
+              if(!pc && !outOfAmmo2 && rightBullets.length % 20 == 0)
+              {
+                outOfAmmo2 = true;
+                rightReload(1, 0);
+              }
+            }
+          }
+          else
+          {
+            if(!outOfAmmo1 && left)
+            {
+              let bullet = new Component(11, 5, "#00FF00", this.x + 15, this.y + 30);
+              bullet.newPos();
+              bullet.speedX = -10;
+              leftBullets.push( bullet );
+              if(shotSound.isPlaying()) { shotSound.stop(); }
+              shotSound.play();
+              if(leftBullets.length % 25 == 0) 
+              {
+                outOfAmmo1 = true;
+                leftReload(1, 0);
+              } 
+            }
+            else if(!outOfAmmo2 && !left)
+            {
+              let bullet = new Component(11, 5, "#FF0000", this.x + 55, this.y + 30);
+              bullet.newPos();
+              bullet.speedX = 10;
+              rightBullets.push( bullet );
+              if(!pc && !outOfAmmo2 && rightBullets.length % 25 == 0)
+              {
+                outOfAmmo2 = true;
+                rightReload(2, 7);
+              }
+            }
           }
         }
+      }
+
+      function leftReload(a, b)
+      {
+        let deegres = 0;
+        myGameArea.context.clearRect(gun1.x + (borderGunWidth * 3)/a + b - radius - 1, gun1.y + (borderGunHeight * 3)/2 - radius - 1, radius * 2 + 2, radius * 2 + 2);
+        circleAnimation1 = setInterval(() =>
+        {
+          deegres += 1;
+
+          myGameArea.context.beginPath();
+          myGameArea.context.arc(gun1.x + (borderGunWidth * 3)/a + b, gun1.y + (borderGunHeight * 3)/2, radius, (Math.PI/180) * 270, (Math.PI/180) * (270 + 360) );
+          myGameArea.context.strokeStyle = '#b1b1b1';
+          myGameArea.context.stroke();
+
+          myGameArea.context.beginPath();
+          myGameArea.context.strokeStyle = "#00FF00";
+          myGameArea.context.arc(gun1.x + (borderGunWidth * 3)/a + b, gun1.y + (borderGunHeight * 3)/2, 50, (Math.PI/180) * 270, (Math.PI/180) * (270 + deegres) );
+          myGameArea.context.stroke();
+
+
+          if(deegres >= 360)
+          {
+            clearInterval(circleAnimation1);
+            outOfAmmo1 = false;
+          } 
+        },milliseconds);
+      }
+
+      function rightReload(a, b)
+      {
+        let deegres = 0;
+        myGameArea.context.clearRect(gun2.x + (borderGunWidth * 3)/a + b - radius - 1, gun2.y + (borderGunHeight * 3)/2 - radius - 1, radius * 2 + 2, radius * 2 + 2);
+        circleAnimation2 = setInterval(() =>
+        {
+          deegres += 1;
+
+          myGameArea.context.beginPath();
+          myGameArea.context.arc(gun2.x + (borderGunWidth * 3)/a + b, gun2.y + (borderGunHeight * 3)/2, radius, (Math.PI/180) * 270, (Math.PI/180) * (270 + 360) );
+          myGameArea.context.strokeStyle = '#b1b1b1';
+          myGameArea.context.stroke();
+
+          myGameArea.context.beginPath();
+          myGameArea.context.strokeStyle = "#FF0000";
+          myGameArea.context.arc(gun2.x + (borderGunWidth * 3)/a + b, gun2.y + (borderGunHeight * 3)/2, 50, (Math.PI/180) * 270, (Math.PI/180) * (270 + deegres) );
+          myGameArea.context.stroke();
+
+
+          if(deegres >= 360)
+          {
+            clearInterval(circleAnimation2);
+            outOfAmmo2 = false;
+          } 
+        },milliseconds);
       }
     
     function Component(width, height, color, x, y) {

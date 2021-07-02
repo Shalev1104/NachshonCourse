@@ -1,23 +1,66 @@
-body
+html
 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
+  font-size: 20px;
 }
-div.mouse:hover
+
+::selection
 {
-  color:green;
+  color: red;
+  background: yellow;
+}
+
+#onHov::before
+{
+  content: "Hover me";
+}
+
+#onHov:hover::before
+{
+  color: black;
+  content: "Lets go";
+}
+
+input[type='radio']:hover {
+  box-shadow:0 0 10px 0px orange inset;
+}
+input[type='radio']:before {
+  content:'';
+  display:block;
+  width:60%;
+  height:60%;
+  margin: 20% auto;    
+  border-radius:50%;    
+}
+input[type='radio']:checked:before {
+  background:blueviolet;
 }
 input[type="radio"]:checked ~ label
 {
-  color:red;
+  color:blueviolet;
+}
+
+ul
+{
+  list-style-position: inside;
+}
+ul ~ div
+{
+  color:blue !important;
 }
 li:nth-child(4)
 {
-  color:pink;
+  color:magenta
 }
-li
+
+.CenterAlignment
 {
-  color:green;
+  justify-content: center;
+  display: flex;
+  align-items: center;
 }
+
 .HorizontalSpin
 {
   animation: rotation 10s infinite linear;
@@ -26,18 +69,39 @@ li
 {
   100%{ transform:rotatey(360deg); }
 }
-.centerblock
+
+.item1 { grid-area: header;}
+.item2 { grid-area: spinnerDisplay;}
+.item3 { grid-area: hoverDisplay;}
+.item4 { grid-area: oclickDisplay;}
+.item5 { grid-area: listDisplay;}
+.item6 { grid-area: footer;}
+
+.grid-container
 {
-  width: 150px;
-  height: 150px;
-  background: lightblue;
-  display: flex;
-  justify-content:center;
-  align-items: center;
-  margin: 0 auto;
-}
-ul ~ div
-{
-  color:blue;
+  display: grid;
+  grid-template-areas: 
+  'header header header header header'
+  'spinnerDisplay spinnerDisplay spinnerDisplay oclickDisplay oclickDisplay'
+  'spinnerDisplay spinnerDisplay spinnerDisplay listDisplay listDisplay'
+  'hoverDisplay hoverDisplay hoverDisplay listDisplay listDisplay'
+  'footer footer footer footer footer';
+  grid-gap : 8px;
+  padding : 30px;
 }
 
+
+.grid-container > div {
+  border: 1px solid black;
+  padding: 20px;
+}
+.grid-container > div:nth-child(2n + 1)
+{
+  background-color: #00A170;
+  color:#EDF1FF;
+}
+.grid-container > div:nth-child(2n)
+{
+  background-color: #EDF1FF;
+  color: #00A170;
+}

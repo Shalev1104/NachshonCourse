@@ -6,12 +6,12 @@
   </head>
   <body>
     <h1>JavaScript Challenge</h1>
-    <table width=100%>
+    <table width = 100% >
       <tr>
         <td class="left">
-          <label for="your-guns" id="left-id">Choose Gun Amount</label>
+          <label for="your-guns" id="left-id">Choose life amount</label>
           <input type="text" name="your-guns" id="your-guns"/>
-          <span id="left-hearts" style="visibility: collapse;"><span class="heart"></span><span id="leftAmount"></span></span>
+          <span id="left-hearts"><span class="heart"></span><span id="leftAmount"></span></span>
         </td>
         <td class="game-mode" id="game-mode">
           <form>
@@ -23,37 +23,37 @@
           </form>
         </td>
         <td class="right">
-          <span id="right-hearts" style="visibility: collapse;"><span id="rightAmount"></span><span class="heart"></span></span>
-          <label for="ai-guns" id="right-id">Choose AI Gun Amount</label>
+          <span id="right-hearts"><span id="rightAmount"></span><span class="heart"></span></span>
+          <label for="ai-guns" id="right-id">Choose AI life amount</label>
           <input type="text" name="ai-guns" id="ai-guns"/>
         </td>
       </tr>
     </table>
-    <span style="visibility: collapse;" id="countDown" class="centerDisplay"></span>
+    <span id="countDown" class="centerDisplay"></span>
     <button class="centerDisplay" onclick="isValid()" id="startGame">Start Game</button>
     <div class = "P1keyboards">
       <img src="images/Keyboards/A.png">
       <img src="images/Keyboards/S.png">
       <img src="images/Keyboards/D.png">
-      <img style="margin-left: 50px;" src="images/Keyboards/Space.png">
+      <img id="spaceShootDisplay" src="images/Keyboards/Space.png">
     </div>
-    <div style="bottom: 53; left: 53; position: absolute;">
+    <div id ="WDisplay">
       <img src="images/Keyboards/W.png">
     </div>
-    <span style="bottom: 106; left: 35; position: absolute; font-size: 20px;">Movement</span>
-    <span style="bottom: 53; left: 206; position: absolute; font-size: 20px;">Shoot</span>
-    <div id="visibillity" style="visibility: hidden;">
+    <span id="movementTextDisplay1">Movement</span>
+    <span id="shootTextDisplay1">Shoot</span>
+    <div id="visibillity">
     <div class = "P2keyboards">
-      <img style="margin-right: 50px;" src="images/Keyboards/Enter.png">
+      <img id="enterShootDisplay" src="images/Keyboards/Enter.png">
       <img src="images/Keyboards/Left.png">
       <img src="images/Keyboards/Down.png">
-      <img src="images/Keyboards/Right.png">
+      <img src="images/Keyboards/Right.png">         
     </div>
-    <div style="bottom: 53; right: 53; position: absolute;">
+    <div id="UpDisplay">
       <img src="images/Keyboards/Up.png">
     </div>
-    <span style="bottom: 106; right: 35; position: absolute; font-size: 20px;">Movement</span>
-    <span style="bottom: 53; right: 206; position: absolute; font-size: 20px;">Shoot</span>
+    <span id="movementTextDisplay2">Movement</span>
+    <span id="shootTextDisplay2">Shoot</span>
     </div>
   </body>
 </html>
