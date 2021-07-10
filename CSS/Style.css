@@ -47,7 +47,7 @@ ul
 }
 ul ~ div
 {
-  color:blue !important;
+  color:blue;
 }
 li:nth-child(4)
 {
