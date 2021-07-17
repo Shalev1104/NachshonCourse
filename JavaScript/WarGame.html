@@ -2,19 +2,17 @@
   <head>
     <title>JavaScript Challenge</title>
     <link rel="Stylesheet" href="Style.css"/>
-    <script src="GifDecode.js"></script>
-    <script src="Game.js"></script>
   </head>
   <body>
     <h1>JavaScript Challenge</h1>
-    <table width = 100% >
+    <table width = 100%>
       <tr>
-        <td class="left">
+        <td class="thirth">
           <label for="your-guns" id="left-id">Choose life amount</label>
           <input type="text" name="your-guns" id="your-guns"/>
           <span id="left-hearts"><span class="heart"></span><span id="leftAmount"></span></span>
         </td>
-        <td class="game-mode" id="game-mode">
+        <td class="thirth" id="game-mode">
           <form>
             <input type="radio" id="ai-mode" name="mode" value="AI" checked  onchange="changeGameMode(this.id)"/>
             <label for="ai-mode">AI</label>
@@ -23,13 +21,14 @@
             <label for="2-players">2 Players</label>
           </form>
         </td>
-        <td class="right">
+        <td class="thirth" id="right">
           <span id="right-hearts"><span id="rightAmount"></span><span class="heart"></span></span>
           <label for="ai-guns" id="right-id">Choose AI life amount</label>
           <input type="text" name="ai-guns" id="ai-guns"/>
         </td>
       </tr>
     </table>
+    <canvas id="canvas-id" class="game-block"></canvas>
     <span id="countDown" class="centerDisplay"></span>
     <button class="centerDisplay" onclick="isValid()" id="startGame">Start Game</button>
     <div class = "P1keyboards">
@@ -56,5 +55,9 @@
     <span id="movementTextDisplay2">Movement</span>
     <span id="shootTextDisplay2">Shoot</span>
     </div>
+    <script src="Sound.js"></script>
+    <script src="Bullet.js"></script>
+    <script src="Gun.js"></script>
+    <script src="Test.js"></script>
   </body>
 </html>

@@ -6,25 +6,27 @@ h1
 {
   text-align: center;
 }
+.thirth
+{
+  width:33%
+}
 
-.left {
-  width:33%;
-}
-.game-mode {
+#game-mode {
   text-align:center;
-  width:33%;
 }
-.right {
+#right {
   text-align:right;
-  width:33%;
 }
 .game-block
 {
-  margin-top: 20px;
-  margin: auto;
-  display: block;
-  border: 4px solid #d3d3d3;
+  width : 75%;
+  height : 75%;
+  top: 50%;
+  left: 50%;
+  transform: translate(15%,0%);
+  border: 1px solid #d3d3d3;
   background:#f1f1f1;
+  display: none;
 }
 .P1keyboards
 {
@@ -43,7 +45,6 @@ h1
   height: 250px;
   width: 250px;
   background-image: linear-gradient(#6441A5 , #2a0845);
-
   color:white;
   font-size: 75px;
   border-radius: 50%;
@@ -55,18 +56,6 @@ h1
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.loader {
-  border: 5px solid #f3f3f3;
-  border-radius: 50%;
-  width: 100px;
-  height: 100px;
-  animation: spin 5s linear;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .heart {
