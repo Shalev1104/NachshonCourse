@@ -28,7 +28,13 @@
         </td>
       </tr>
     </table>
-    <canvas id="canvas-id" class="game-block"></canvas>
+    <div class="pause">
+      <button>Continue</button>
+      <button>Restart Game</button>
+      <button>Back to menu</button>
+    </div>
+    <div id="overlay"></div>
+    <canvas class="game-block"></canvas>
     <span id="countDown" class="centerDisplay"></span>
     <button class="centerDisplay" onclick="isValid()" id="startGame">Start Game</button>
     <div class = "P1keyboards">
@@ -58,6 +64,6 @@
     <script src="Sound.js"></script>
     <script src="Bullet.js"></script>
     <script src="Gun.js"></script>
-    <script src="Test.js"></script>
+    <script src="Game.js"></script>
   </body>
 </html>

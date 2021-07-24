@@ -1,133 +1,190 @@
-function Gun(x, y, width, height, speed, color, isP1)
-{
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.speed = speed;
-    this.color = color;
-    this.p1 = isP1;
-    this.cardridge = 20;
-    this.frameX = 0;
-    this.deegres = 0;
-    this.shooting = false;
-    this.outOfAmmo = false;
-    this.bullets;
-    this.hearts;
-    const radius = 50;
-
-    const widthToGun = 15;
-    const heightToGun = 25;
-    const gunBarrelWidth = 45;
-    const gunBarrelHeight = 13;
-    const gunCartridgeWidth = 14;
-    const gunCartridgeHeight = 37;
-
-    this.drawSprite = function(sX, sY, sW, sH, dirX, dirY, dirW, dirH)
+class Gun {
+    constructor(x, y, width, height, speed, color, isP1)
     {
-        if (this.p1) ctx.drawImage(gun1Sprite, sX, sY, sW, sH, dirX, dirY, dirW, dirH);
-        else         ctx.drawImage(gun2Sprite, sX, sY, sW, sH, dirX, dirY, dirW, dirH);
+        this.x = x;
+        this.y = y;
+        this.width = width; //represent sprite sheet width
+        this.height = height; //represent sprite sheet height
+        this.speed = speed;
+        this.color = color;
+        this.p1 = isP1;
+        this.frameX = 0;
+        this.shooting = false;
+        this.outOfAmmo = false;
+        this.bullets;
+        this.hearts;
+        this.circleAnimation;
+        
+        this.cardridge = 25;
+        this.bulletSpeed = 10;
+        this.bulletWidth = 11;
+        this.bulletHeight = 5;
+        this.radius = 50;
+        this.gunWidth = 80;
+        this.gunHeight = 80;
+        this.gunSpacing = 
+        { 
+            widthToGun : 15, 
+            heightToGun : 25, 
+            gunBarrelWidth : 45, 
+            gunBarrelHeight : 13, 
+            gunCardridgeWidth : 14, 
+            gunCardridgeHeight : 37 
+        };
+    }
+    
+    drawSprite(gunSprite)
+    {
+        ctx.drawImage(gunSprite, this.width * this.frameX, 0, this.width, this.height, this.x, this.y, this.gunWidth, this.gunHeight);
     }
 
-    this.drawBullet = function(addX)
+    drawBullet(addX)
     {
-        this.bullets.push(new Bullet(this.x + addX, this.y + 30, 11, 5, this.color));
-        if(this.bullets.length % this.cardridge == 0)
+        const bullet = new Bullet(this.x + addX, this.y + 30, this.bulletWidth, this.bulletHeight, this.color);
+        let designCircle;
+        if (this.p1 && !switcher || !this.p1 && switcher)
+        {
+            bullet.speed = this.bulletSpeed;
+            designCircle = [2, 7];
+        }
+        else
+        {
+            bullet.speed = -this.bulletSpeed;
+            designCircle = [1, 0];
+        }
+        this.bullets.push(bullet);
+        if(this.bullets.length % this.cardridge == 0 && !(ai && !this.p1))
         {
             this.outOfAmmo = true;
-            ctx.clearRect(this.x + (widthToGun * 3)/2 + 7 - radius - 1, this.y + heightToGun * 2 - radius - 1, radius * 2 + 2, radius * 2 + 2);  
-            this.reload();
+            ctx.clearRect(this.x + (this.gunSpacing.widthToGun * 3)/designCircle[0] + designCircle[1] - this.radius - 1, this.y + this.gunSpacing.heightToGun * 2 - this.radius - 1, this.radius * 2 + 2, this.radius * 2 + 2);  
+            this.reload(0, designCircle);
         }
     }
 
-    this.functuality = function(movement)
+    functuality(movement)
     {
         if (keyMap[movement[0]])
         {
             this.shooting = true;
             this.shoot();
         }
-        if (keyMap[movement[1]] && this.x > 0)
+        if (keyMap[movement[1]])
+        {
+            this.leftMove();
+        }
+        if (keyMap[movement[2]])
+        {
+            this.upMove();
+        }
+        if (keyMap[movement[3]])
+        {
+            this.rightMove();
+        }
+        if (keyMap[movement[4]])
+        {
+            this.downMove();
+        }
+    }
+
+    leftMove()
+    {
+        if (this.x > 0)
         {
             this.x -= this.speed;
         }
-        if (keyMap[movement[2]] && this.y > 0)
-        {
-            this.y -= this.speed;
-        }
-        if (keyMap[movement[3]] && this.x  < canvas.width - gunWidth)
+    }
+    rightMove()
+    {
+        if (this.x  < canvas.width - this.gunWidth)
         {
             this.x += this.speed;
         }
-        if (keyMap[movement[4]] && this.y < canvas.height - gunHeight)
+    }
+    upMove()
+    {
+        if (this.y > - this.gunSpacing.gunBarrelHeight)
+        {
+            this.y -= this.speed;
+        }
+    }
+    downMove()
+    {
+        if (this.y < canvas.height - this.gunHeight)
         {
             this.y += this.speed;
         }
     }
   
-    this.handlePlayerFrame = function()
+    handlePlayerFrame()
     {
         (this.frameX < 6 && this.shooting && !this.outOfAmmo) ? this.frameX++ : this.frameX = 0;
     }
 
-    this.shoot = function()
+    shoot()
     {
         const addXtoleft = 65;
         const addXtoRight = 5;
         if(!this.outOfAmmo)
         {
-            if      (this.p1 && !switcher )   { if(shotSound.isPlaying()) { shotSound.stop(); }
-            shotSound.play(); this.drawBullet(addXtoleft);   }
-            else if (this.p1 && switcher  )   { this.drawBullet(addXtoleft);   }
-            else if (!this.p1 && !switcher)   { this.drawBullet(addXtoRight);  }
-            else if (!this.p1 && switcher )   { if(shotSound.isPlaying()) { shotSound.stop(); }
-            shotSound.play(); this.drawBullet(addXtoRight);  }
+            if(this.p1)
+            {
+                if(shotSound.isPlaying()) { shotSound.stop(); }
+                shotSound.play();
+                switcher ? this.drawBullet(addXtoRight) : this.drawBullet(addXtoleft);
+            }
+            else
+            {
+                switcher ? this.drawBullet(addXtoleft) : this.drawBullet(addXtoRight);
+            }
         }
     }
 
-    this.isHit = function(bullet)
+    isHit(bullet)
     {
         return (this.cartridgeHit(bullet) || this.barrelHit(bullet));
     }
 
-    this.cartridgeHit = function (bullet) 
+    cartridgeHit(bullet) 
     {
-        if(this.p1)
-            return (bullet.x >= this.x + widthToGun && bullet.x <= this.x + widthToGun + gunCartridgeWidth && bullet.y >= this.y + heightToGun + gunBarrelHeight && bullet.y <= this.y + heightToGun + gunBarrelHeight + gunCartridgeHeight);
-        return (bullet.x >= this.x + gunWidth - widthToGun - gunCartridgeWidth && bullet.x <= this.x + gunWidth - widthToGun && bullet.y >= this.y + heightToGun + gunBarrelHeight && bullet.y <= this.y + heightToGun + gunBarrelHeight + gunCartridgeHeight);
+        if(this.p1 && !switcher || !this.p1 && switcher)
+            return (bullet.x >= this.x + this.gunSpacing.widthToGun && bullet.x <= this.x + this.gunSpacing.widthToGun + this.gunSpacing.gunCardridgeWidth && bullet.y >= this.y + this.gunSpacing.heightToGun + this.gunSpacing.gunBarrelHeight && bullet.y <= this.y + this.gunSpacing.heightToGun + this.gunSpacing.gunBarrelHeight + this.gunSpacing.gunCardridgeHeight);
+        return (bullet.x >= this.x + this.gunWidth - this.gunSpacing.widthToGun - this.gunSpacing.gunCardridgeWidth && bullet.x <= this.x + this.gunWidth - this.gunSpacing.widthToGun && bullet.y >= this.y + this.gunSpacing.heightToGun + this.gunSpacing.gunBarrelHeight && bullet.y <= this.y + this.gunSpacing.heightToGun + this.gunSpacing.gunBarrelHeight + this.gunSpacing.gunCardridgeHeight);
     }
 
-    this.barrelHit = function(bullet)
+    barrelHit(bullet)
     {
-        if(this.p1)
-            return (bullet.x >= this.x + widthToGun && bullet.x <= this.x + widthToGun + gunBarrelWidth && bullet.y >= this.y + heightToGun && bullet.y <= this.y + heightToGun + gunBarrelHeight);
-        return (bullet.x >= this.x + gunWidth - widthToGun - gunBarrelWidth && bullet.x <= this.x + gunWidth - widthToGun && bullet.y >= this.y + heightToGun && bullet.y <= this.y + heightToGun + gunBarrelHeight);
+        if(this.p1 && !switcher || !this.p1 && switcher)
+            return (bullet.x >= this.x + this.gunSpacing.widthToGun && bullet.x <= this.x + this.gunSpacing.widthToGun + this.gunSpacing.gunBarrelWidth && bullet.y >= this.y + this.gunSpacing.heightToGun && bullet.y <= this.y + this.gunSpacing.heightToGun + this.gunSpacing.gunBarrelHeight);
+        return (bullet.x >= this.x + this.gunWidth - this.gunSpacing.widthToGun - this.gunSpacing.gunBarrelWidth && bullet.x <= this.x + this.gunWidth - this.gunSpacing.widthToGun && bullet.y >= this.y + this.gunSpacing.heightToGun && bullet.y <= this.y + this.gunSpacing.heightToGun + this.gunSpacing.gunBarrelHeight);
     }
 
-    this.reload = function()
+    reload(deegres, circleFit)
     {
-        this.deegres += 1;
-
-        ctx.beginPath();
-        ctx.arc(this.x + (widthToGun * 3)/2 + 7, this.y + heightToGun * 2, radius, (Math.PI/180) * 270, (Math.PI/180) * (270 + 360) );
-        ctx.strokeStyle = '#b1b1b1';
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.strokeStyle = this.color;
-        ctx.arc(this.x + (widthToGun * 3)/2 + 7, this.y + heightToGun * 2, 50, (Math.PI/180) * 270, (Math.PI/180) * (270 + this.deegres) );
-        ctx.stroke();
-
-
-        if(this.deegres >= 360)
+        if(!paused)
         {
-            cancelAnimationFrame(this.reload.bind(this));
-            this.deegres = 0;
-            this.outOfAmmo = false;
+            deegres += 1;
+
+            ctx.beginPath();
+            ctx.arc(this.x + (this.gunSpacing.widthToGun * 3)/circleFit[0] + circleFit[1], this.y + this.gunSpacing.heightToGun * 2, this.radius, (Math.PI/180) * 270, (Math.PI/180) * (270 + 360) );
+            ctx.strokeStyle = '#b1b1b1';
+            ctx.stroke();
+    
+            ctx.beginPath();
+            ctx.strokeStyle = this.color;
+            ctx.arc(this.x + (this.gunSpacing.widthToGun * 3)/circleFit[0] + circleFit[1], this.y + this.gunSpacing.heightToGun * 2, 50, (Math.PI/180) * 270, (Math.PI/180) * (270 + deegres) );
+            ctx.stroke();
+    
+    
+            if(deegres == 360)
+            {
+                cancelAnimationFrame(this.circleAnimation);
+                deegres = 0;
+                this.outOfAmmo = false;
+            }   
         }
-        else
+        if(deegres != 0)
         {
-          requestAnimationFrame(this.reload.bind(this));
+            this.circleAnimation = requestAnimationFrame(this.reload.bind(this,deegres, circleFit));
         }
     }
 }
