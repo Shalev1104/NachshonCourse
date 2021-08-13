@@ -9,8 +9,8 @@ let aiCounter = 0;
 let gameAnimation;
 let preGameInterval;
 let switcher = false;
-const gun1 = new Gun(5, canvas.height / 2.5, 250, 156, 5, "#00ff00", true);
-const gun2 = new Gun(canvas.width * 0.9, canvas.height / 2.5, 250, 156, 5, "#ff0000", false);
+const gun1 = new Gun(5, canvas.height / 2.5, 250, 156, 5, 25, "#00ff00");
+const gun2 = new Gun(canvas.width * 0.9, canvas.height / 2.5, 250, 156, 5, 25, "#ff0000");
 const defaultHearts = new Array();
 const FPS = 60;
 const keyMap = [];
@@ -103,7 +103,7 @@ function down(e)
   keyMap[e.keyCode] = true;
   if(e.keyCode == 32 && !paused)             {   gun1.shooting = true;   }
   else if(e.keyCode == 13 && !paused && !ai) {   gun2.shooting = true;   }
-  else if(e.keyCode == 27)            {   togglePause();          }
+  else if(e.keyCode == 27)                   {   togglePause();          }
 }
 function up(e)
 {
@@ -169,6 +169,8 @@ function resetValues()
   gun2.shooting = false;
   gun1.frameX = 0;
   gun2.frameX = 0;
+  gun1.degrees = 0;
+  gun2.degrees = 0;
   gun1.x = 5;
   gun1.y = canvas.height / 2.5;
   gun2.x = canvas.width * 0.9;
@@ -260,42 +262,73 @@ function startAnimating(fps)
 function animate()
 {
   gameAnimation = requestAnimationFrame(animate);
-  if(!paused)
+  now = Date.now();
+  elapsed = now - then;
+  if(elapsed > fpsInterval)
   {
-    now = Date.now();
-    elapsed = now - then;
-    if(elapsed > fpsInterval)
+    then = now - (elapsed % fpsInterval);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if(isSwitchSides())
+      switcher = !switcher;
+    if(!switcher)
     {
-      then = now - (elapsed % fpsInterval);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if(isSwitchSides(switcher))
-        switcher = !switcher;
-      if(!switcher)
-      {
-        gun1.drawSprite(gun1Sprite);
-        gun2.drawSprite(gun2Sprite);
-      }
-      else
-      {
-        gun1.drawSprite(gun2Sprite);
-        gun2.drawSprite(gun1Sprite);
-      }
-      gun1.functuality([32, 65, 87, 68, 83]);
-      if(ai)
-        aiMovement();
-      else
-          gun2.functuality([13, 37, 38, 39, 40]);
-      gun1.handlePlayerFrame();
-      gun2.handlePlayerFrame();
-      gun1.bullets.forEach( (bullet)=> {
-            bullet.x += bullet.speed;
-            bullet.update();
-      });
-      gun2.bullets.forEach( (bullet)=> {
-          bullet.x += bullet.speed;
-          bullet.update();
-      });
-      bulletsShots(); 
+      drawGunSprite(gun1Sprite, gun1);
+      drawGunSprite(gun2Sprite, gun2);
+    }
+    else
+    {
+      drawGunSprite(gun2Sprite, gun1);
+      drawGunSprite(gun1Sprite, gun2);
+    }
+    gun1.functuality([32, 65, 87, 68, 83], true, switcher);
+    drawReload(gun1);
+    drawReload(gun2);
+    if(ai)
+    {
+      aiMovement();
+      gun2.outOfAmmo = false;
+    }
+    else
+      gun2.functuality([13, 37, 38, 39, 40], false, switcher);
+    gun1.handlePlayerFrame();
+    gun2.handlePlayerFrame();
+    gun1.bullets.forEach( (bullet)=> {
+      bullet.x += bullet.speed;
+      bullet.update();
+    });
+    gun2.bullets.forEach( (bullet)=> {
+      bullet.x += bullet.speed;
+      bullet.update();
+    });
+    bulletsShots();
+  }
+}
+
+function drawGunSprite(gunSprite, gun)
+{
+    ctx.drawImage(gunSprite, gun.width * gun.frameX, 0, gun.width, gun.height, gun.x, gun.y, gun.gunWidth, gun.gunHeight);
+}
+
+function drawReload(gun)
+{
+  if(gun.outOfAmmo)
+  {
+    gun.degrees += 1;
+
+    ctx.beginPath();
+    ctx.arc(gun.x + (gun.gunSpacing.widthToGun * 3), gun.y + gun.gunSpacing.heightToGun * 2, gun.radius, (Math.PI/180) * 270, (Math.PI/180) * (270 + 360) );
+    ctx.strokeStyle = '#b1b1b1';
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.strokeStyle = gun.color;
+    ctx.arc(gun.x + (gun.gunSpacing.widthToGun * 3), gun.y + gun.gunSpacing.heightToGun * 2, 50, (Math.PI/180) * 270, (Math.PI/180) * (270 + gun.degrees) );
+    ctx.stroke();
+
+    if(gun.degrees == 360)
+    {
+        gun.degrees = 0;
+        gun.outOfAmmo = false;
     }
   }
 }
@@ -304,7 +337,7 @@ function bulletsShots()
 {
   for(let b1 of gun1.bullets)
   {
-    if(gun2.isHit(b1))
+    if(gun2.isHit(b1, switcher))
     {
       deathSound.play();
       gun2.hearts--;
@@ -330,7 +363,7 @@ function bulletsShots()
 
   for(let b2 of gun2.bullets)
   {
-    if(gun1.isHit(b2))
+    if(gun1.isHit(b2, !switcher))
     {
       deathSound.play();
       gun1.hearts--;
@@ -355,7 +388,7 @@ function bulletsShots()
   }
 }
 
-function isSwitchSides(switcher)
+function isSwitchSides()
 {
     return (switcher ? gun1.x < gun2.x : gun1.x > gun2.x);
 }
@@ -378,7 +411,7 @@ function aiMovement()
       gun2.downMove();
     else
     {
-      gun2.shoot();
+      gun2.setUp(false, switcher);
       gun2.shooting = true;
       switch(Math.floor(Math.random() * 4))
       {
@@ -405,12 +438,14 @@ function togglePause()
   const overlay = document.querySelector('#overlay');
   if(paused)
   {
+    cancelAnimationFrame(gameAnimation);
     pauseDiv.classList.add('active');
     overlay.classList.add('active');
     document.querySelector('.pause button:first-child').classList.add('active');
   }
   else
   {
+    startAnimating(FPS);
     pauseDiv.classList.remove('active');
     overlay.classList.remove('active');
     document.querySelector('.pause button.active').classList.remove('active');

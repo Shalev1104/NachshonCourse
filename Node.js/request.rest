@@ -1,0 +1,19 @@
+GET  http://localhost:5500/users
+###
+POST http://localhost:5500/users
+
+{
+    "userName" : "israel73",
+    "password" : "il73li",
+    "name" : "israel israeli"
+}
+###
+POST http://localhost:5500/login
+
+{
+    "userName" : "israel73",
+    "password" : "il73li"
+}
+###
+GET http://localhost:5500/protected
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyTmFtZSI6ImlzcmFlbDczIiwicGFzc3dvcmQiOiJhYzhiNWQzZmU2OGY5NjRlYjJmOWRjODYxMDJmYTJlN2M3MTRiYzI5NDNkNWY5ZWQxYWY2ZjljNmQ2NTBlNTQzMTc1NzRjZTJmMjFjYzc3MDhlMDg3ODZiYWMzN2M5OGU5YzRiMTc1ZGQ2NDkwMmZhZTEwN2ZiNGJiOGNjMjUyYzQ2MWI4MjM1ZmQ3Yzg3YmIzZjU4YTljNzJhNDZlNjE4IiwibmFtZSI6ImlzcmFlbCBpc3JhZWxpIiwiaWF0IjoxNjI4ODUzMTI0fQ.wbhEbSrAH3nARhFHnnHm8CuDv4hsiFjW021W8XRFyRA
