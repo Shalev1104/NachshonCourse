@@ -4,10 +4,10 @@ const jwt = require('jsonwebtoken');
 const authMap = require('./mapPaths');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
-let isAuth = false;
 const users = [];
 const saltSize = 32;
 require('dotenv/config');
+
 const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', 'application/json');
     function middlewareAuthorize()
@@ -20,9 +20,16 @@ const server = http.createServer((req, res) => {
                     const token = bearer_token.split(" ")[1];
                     jwt.verify(token, process.env.TOKEN_SECRET, (err, user) =>
                     {
-                        if(err) { res.statusCode = 403; reject('invalid token') }
-                        res.statusCode = 200;
-                        resolve(user)
+                        if(err) 
+                        {
+                            res.statusCode = 403; 
+                            reject('invalid token') 
+                        }
+                        else
+                        {
+                            res.statusCode = 200;
+                            resolve(user);
+                        }
                     });
                 }
                 catch(err)
@@ -32,14 +39,47 @@ const server = http.createServer((req, res) => {
                 }
             })
     }
+    function middlewareAdmin(user)
+    {
+        return new Promise((resolve, reject) => {
+            user.role === "ADMINISTRATOR" ? resolve() : reject('denied Access'); //returns reject because no value of role
+        });
+    }
     switch (req.url)
     {
+        case '/' : 
+        let msg;
+        const date = new Date();
+        const now = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+
+            middlewareAuthorize().then(user => {
+                msg = 'Hello ' + user.userName + ' today is ' + now;
+            }).catch(() => {
+                msg = 'Hello Guest today is ' + now;
+            }).finally(() => {
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'plain/text');
+                res.end(msg);
+            })
+            break;
         case '/users' :
 
             if(req.method === 'GET') 
             {
-                res.end(JSON.stringify(users));
-                res.statusCode = 200;
+                middlewareAuthorize().then(user => {
+                    middlewareAdmin(user).then(() => {
+                        res.statusCode = 200;
+                        res.write(JSON.stringify(users));
+                    }).catch((message) => {
+                        res.statusCode = 403;
+                        console.log(message);
+                    });
+                }).catch(err => {
+                    res.statusCode = 401;
+                    console.log(err);
+                }).finally(() => {
+                    res.end();
+                });
             }
 
             else if(req.method === 'POST') // sign up || register
@@ -54,7 +94,8 @@ const server = http.createServer((req, res) => {
                         const user = {
                             userName : JSON.parse(data).userName,
                             password : JSON.parse(data).password,
-                            name     : JSON.parse(data).name
+                            name     : JSON.parse(data).name,
+                            role     : JSON.parse(data).password === process.env.ADMIN_SECRET ? "ADMINISTRATOR" : "NORMAL"
                         }
                         const exists = users.find(found => found.userName === user.userName);
                         if(exists !== undefined)
@@ -129,7 +170,6 @@ const server = http.createServer((req, res) => {
                                 res.statusCode = 200;
                                 console.log('login success');
                                 console.log('ho ho ' + user.userName);
-                                isAuth = true;
                                 res.end(JSON.stringify({ authentication : true, token : accessToken }));
                             }).catch(err => 
                             {
@@ -157,19 +197,15 @@ const server = http.createServer((req, res) => {
         case '/protected' :
             if(req.method === 'GET')
             {
-                if(!isAuth) { console.log('you need to login first'); res.statusCode = 403;}
-                
-                else
+                middlewareAuthorize().then((user) =>
                 {
-                    middlewareAuthorize().then((user) =>
-                    {
-                        console.log('user ' + user.userName);
-                    }).catch((err) =>
-                    {
-                        console.log(err);
-                    });
-                }
-                res.end();
+                    console.log('user ' + user.userName);
+                }).catch((err) =>
+                {
+                    console.log(err);
+                }).finally(() => {
+                    res.end();
+                });
             }
             break;
         default:
@@ -198,6 +234,33 @@ async function verify(reqPassword, userPassword) {
         });
     });
 }
+function addAdmin(uName)
+{
+    return new Promise((resolve,reject) => {
+        const adminReq = http.request(
+            {
+                method : 'POST',
+                port : PORT,
+                path : '/users',
+                headers: { 'Content-Type' : 'application/json' }
+                
+            },() => resolve())
+        
+            adminReq.on('error', function (err)
+            {
+                console.log("ServerError, unable to create admin");
+                reject(err)
+            });
+        
+            adminReq.end(JSON.stringify({ userName : uName, password : process.env.ADMIN_SECRET, name : "admin"}));  
+    });
+};
 server.listen(PORT, 'localhost', () => {
     console.log('listening on port : ' + PORT);
 });
+const admins = async () =>
+{
+    await addAdmin("A_D!M1_nN");
+    await addAdmin("aDmi@N");
+}
+admins();
