@@ -1,2 +1,4 @@
 Node.js/.env
 Node.js/request.rest
+node_modules
+Node.js/dbconfig.js

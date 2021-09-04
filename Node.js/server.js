@@ -1,14 +1,14 @@
 const http = require('http');
-const fileSystem = require('fs');
 const jwt = require('jsonwebtoken');
-const authMap = require('./mapPaths');
 const crypto = require('crypto');
 const PORT = process.env.PORT || 5500;
-const users = [];
+const array = [];
 const saltSize = 32;
+const sql = require('mssql');
+const config = require('./dbconfig');
 require('dotenv/config');
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     function middlewareAuthorize()
     {
@@ -41,48 +41,79 @@ const server = http.createServer((req, res) => {
     }
     function middlewareAdmin(user)
     {
-        return new Promise((resolve, reject) => {
-            user.role === "ADMINISTRATOR" ? resolve() : reject('denied Access'); //returns reject because no value of role
-        });
+        return user.role === "ADMINISTRATOR";
     }
     switch (req.url)
     {
-        case '/' : 
-        let msg;
-        const date = new Date();
-        const now = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
-
-            middlewareAuthorize().then(user => {
-                msg = 'Hello ' + user.userName + ' today is ' + now;
-            }).catch(() => {
-                msg = 'Hello Guest today is ' + now;
-            }).finally(() => {
-                res.statusCode = 200;
+        case '/' :
+            if(req.method === 'GET')
+            {
+                let msg;
+                const date = new Date();
+                const now = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear();
+        
+                middlewareAuthorize().then(user => {
+                    msg = 'Hello ' + user.userName + ' today is ' + now;
+                }).catch(() => {
+                    msg = 'Hello Guest today is ' + now;
+                }).finally(() => {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'plain/text');
+                    res.end(msg);
+                });
+            }
+            break;
+        case '/echo' : 
+        try
+        {
+            let data = '';
+            req.on('data', chunk => {
+                data += chunk.toString();
+            });
+            req.on('end', () => {
                 res.setHeader('Content-Type', 'plain/text');
-                res.end(msg);
-            })
+                res.statusCode = 200;
+                res.end("the message is " + JSON.parse(data).msg);
+            });
+        }
+        catch(err)
+        {
+            res.statusCode = 400;
+            console.log(err);
+            res.end();
+        }
             break;
         case '/users' :
 
             if(req.method === 'GET') 
             {
-                middlewareAuthorize().then(user => {
-                    middlewareAdmin(user).then(() => {
+                try
+                {
+                    middlewareAdmin(await middlewareAuthorize());
+                    try
+                    {
+                        const users = (await runQuery("SELECT * FROM Users;")).recordset;
                         res.statusCode = 200;
-                        res.write(JSON.stringify(users));
-                    }).catch((message) => {
-                        res.statusCode = 403;
-                        console.log(message);
-                    });
-                }).catch(err => {
+                        res.write(JSON.stringify(users));                        
+                    }
+                    catch(dbErr)
+                    {
+                        res.statusCode = 500;
+                        console.log(dbErr);
+                    }
+                }
+                catch(err)
+                {
                     res.statusCode = 401;
                     console.log(err);
-                }).finally(() => {
+                }
+                finally
+                {
                     res.end();
-                });
+                }
             }
 
-            else if(req.method === 'POST') // sign up || register
+            else if(req.method === 'POST')
             {
                 let data = '';
                 req.on('data', chunk => {
@@ -97,38 +128,29 @@ const server = http.createServer((req, res) => {
                             name     : JSON.parse(data).name,
                             role     : JSON.parse(data).password === process.env.ADMIN_SECRET ? "ADMINISTRATOR" : "NORMAL"
                         }
-                        const exists = users.find(found => found.userName === user.userName);
-                        if(exists !== undefined)
-                        {
-                            res.statusCode = 409;
-                            console.log('user already exists');
-                        }
-                        else
-                        {
-                            user.password = await hashPassword(user.password);
-                            return await new Promise((resolve, reject) => {
-                                jwt.sign({user : user}, process.env.TOKEN_SECRET, (err, token) => 
+                        user.password = await hashPassword(user.password);
+                        return await new Promise((resolve, reject) => {
+                            jwt.sign(user, process.env.TOKEN_SECRET, (err, token) => 
+                            {
+                                if(err)
                                 {
-                                    if(err)
-                                    {
-                                        reject(err);
-                                    }
-                                    else
-                                    {
-                                        resolve(token);
-                                    }
-                                });
-                            }).then(token => {
-                                res.setHeader('Content-Type', 'text/plain');
-                                res.write(token);
-                                users.push(user);
-                                res.statusCode = 201;
-                                console.log('user added successfully');
-                            }).catch(err => {
-                                res.statusCode = 403;
-                                console.log(err.message);
+                                    reject(err);
+                                }
+                                else
+                                {
+                                    resolve(token);
+                                }
                             });
-                        }
+                        }).then(async token => {
+                            await runQuery(`INSERT INTO Users VALUES('${user.userName}','${user.name}','${user.password}','${user.role}');`);
+                            console.log('user added successfully');
+                            res.setHeader('Content-Type', 'text/plain');
+                            res.statusCode = 201;
+                            res.write(token);
+                        }).catch(err => {
+                            res.statusCode = 403;
+                            console.log(err.message);
+                        });
                     }
                     catch(err)
                     {
@@ -141,8 +163,73 @@ const server = http.createServer((req, res) => {
                     }
                 });
             }
+            else if(req.method === 'PUT')
+            {
+                middlewareAuthorize().then((user) =>
+                {
+                    let data = '';
+                    req.on('data', chunk => {
+                        data += chunk.toString();
+                    });
+                    req.on('end',async () => {
+                        try
+                        {
+                            const parsedData = JSON.parse(data).name;
+                            await runQuery(`UPDATE Users SET name ='${parsedData}' WHERE ID =${user.ID};`)
+                            console.log("successfully changed");
+                            res.statusCode = 204;
+                            res.end();
+                        }
+                        catch (e) {
+                            res.statusCode = 400;
+                            console.error(e.message);
+                            res.end();
+                        }
+                    });
+                }).catch((err) =>
+                {
+                    console.log(err);
+                    res.statusCode = 401;
+                    res.end();
+                });
+            }
             break;
+        case urlInclude(req.url, "/users/") :
+            if(req.method === 'GET')
+            {
+                try
+                {
+                    middlewareAdmin(await middlewareAuthorize()); //לשנות כאן כדי שייתן סטאטוס לכל מצב
+                    let user, id;
+                    try
+                    {
+                        id = req.url.split("/")[2];
+                        user = (await runQuery(`SELECT * FROM Users WHERE ID =${id};`)).recordset;
+                    }
+                    catch(dbErr)
+                    {
+                        res.statusCode = 500;
+                        console.log(err);
+                    }
 
+                    if(user.length === 0)
+                    {
+                        res.statusCode = 404;
+                        console.log('user Id not exists');
+                        res.end();
+                    }
+                    else
+                    {
+                        res.end(JSON.stringify(user));   
+                    }
+                }
+                catch(err)
+                {
+                    res.statusCode = 403;
+                    console.log(err);
+                }
+            }
+            break;
         case '/login' :
             if(req.method === 'POST')
             {
@@ -155,7 +242,7 @@ const server = http.createServer((req, res) => {
                     {
                         const userName = JSON.parse(data).userName;
                         const password = JSON.parse(data).password;
-                        const user = users.find(user => user.userName === userName);
+                        const user = ((await runQuery(`SELECT * FROM Users WHERE userName ='${userName}'`)).recordsets[0][0]);
                         if(user === undefined)
                         {
                             res.statusCode = 400;
@@ -187,23 +274,159 @@ const server = http.createServer((req, res) => {
                     }
                 });
             }
-            else if(req.method === 'GET')
-            {
-                res.statusCode = 405;
-                console.log('verb incorrect');
-                res.end();
-            }
             break;
-        case '/protected' :
+        case '/array' :
             if(req.method === 'GET')
             {
-                middlewareAuthorize().then((user) =>
-                {
-                    console.log('user ' + user.userName);
-                }).catch((err) =>
-                {
+                res.statusCode = 200;
+                res.end(JSON.stringify(array));
+            }
+            else if(req.method === 'POST')
+            {
+                middlewareAuthorize().then(user => {
+                    if(middlewareAdmin(user)) 
+                    {
+                        let rawData = '';
+                        req.on('data', (chunk) => { rawData += chunk; });
+                        req.on('end', () => {
+                            try 
+                            {
+                                res.statusCode = 201;
+                                const parsedData = JSON.parse(rawData).value;
+                                if(parsedData)
+                                {
+                                    array.push(parsedData);
+                                    res.end();
+                                }
+                                else
+                                    throw new Error('syntax error');
+                            }
+                            catch (e) 
+                            {
+                                res.statusCode = 400;
+                                console.error(e.message);
+                                res.end();
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.statusCode = 403;
+                        res.end();
+                    }
+            }).catch(err => {
+                res.statusCode = 401;
+                console.log(err);
+                res.end();
+            });
+
+            }
+            else if(req.method === 'DELETE')
+            {
+                middlewareAuthorize().then(user => {
+                    if(middlewareAdmin(user))
+                    {
+                        if(array.length > 0)
+                        {
+                            res.statusCode = 204;
+                            array.pop();
+                            res.end();
+                        }
+                        else
+                        {
+                            res.statusCode = 404;
+                            console.log('empty array');
+                            res.end();
+                        }
+                    }
+                    else
+                    {
+                        res.statusCode = 403;
+                        res.end();
+                    }
+                }).catch(err => {
+                    res.statusCode = 401;
                     console.log(err);
-                }).finally(() => {
+                    res.end();
+                });
+            }
+            break;
+        case urlInclude(req.url, "/array/") :
+            if(req.method === 'PUT')
+            {
+                middlewareAuthorize().then(user => {
+                    if(middlewareAdmin(user))
+                    {
+                        let rawData = '';
+                        req.on('data', (chunk) => { rawData += chunk; });
+                        req.on('end', () => {
+                            try {
+                            res.statusCode = 200;
+                            const parsedData = JSON.parse(rawData).value;
+                            if(parsedData)
+                            {
+                                const index = req.url.split('/')[2];
+                                if(array.includes(array[index - 1]))
+                                {
+                                    array[index - 1] = parsedData;
+                                    res.end(JSON.stringify(JSON.parse(rawData)));
+                                }
+                                else
+                                {
+                                    res.statusCode = 404;
+                                    console.log('undefined index');
+                                    res.end();
+                                }
+                            }
+                            else
+                            {
+                                throw new Error('syntax error');
+                            }
+                            } catch (e) {
+                            res.statusCode = 400;
+                            console.error(e.message);
+                            res.end();
+                            }
+                        });   
+                    }
+                    else
+                    {
+                        res.statusCode = 403;
+                        res.end();
+                    }
+                }).catch(err => {
+                    res.statusCode = 401;
+                    console.log(err);
+                    res.end();
+                });
+            }
+            else if(req.method === 'DELETE')
+            {
+                middlewareAuthorize().then(user => {
+                    if(middlewareAdmin(user))
+                    {
+                        const index = req.url.split('/')[2];
+                        if(array.length >= index)
+                        {
+                            res.statusCode = 204;
+                            array.splice(index - 1, 1);
+                            res.end();
+                        }
+                        else
+                        {
+                            res.statusCode = 404;
+                            console.log('empty array');
+                            res.end();
+                        }
+                    }
+                    else
+                    {
+                        res.statusCode = 403;
+                        res.end();
+                    }
+                }).catch(err => {
+                    res.statusCode = 401;
+                    console.log(err);
                     res.end();
                 });
             }
@@ -213,6 +436,12 @@ const server = http.createServer((req, res) => {
             res.end();
     }
 });
+function urlInclude(url, text)
+{
+    if(url.includes(text))
+        return url;
+    return undefined;
+}
 async function hashPassword(password)
 {
     return new Promise((resolve, reject) => {
@@ -260,7 +489,11 @@ server.listen(PORT, 'localhost', () => {
 });
 const admins = async () =>
 {
-    await addAdmin("A_D!M1_nN");
-    await addAdmin("aDmi@N");
+    await Promise.all([addAdmin("A_D!M1_nN"), addAdmin("aDmi@N")]);
+}
+async function runQuery(query)
+{
+    const path = await sql.connect(config);
+    return await path.request().query(query);
 }
 admins();
