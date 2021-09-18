@@ -1,0 +1,44 @@
+{
+  "name": "nachshoncourse",
+  "version": "1.0.0",
+  "description": "node.js execrise involved http module and database in sql server, auth using jwt",
+  "main": "Node.js/server.js",
+  "dependencies": {
+    "buffer-equal-constant-time": "^1.0.1",
+    "dotenv": "^10.0.0",
+    "ecdsa-sig-formatter": "^1.0.11",
+    "express": "^4.17.1",
+    "jquery": "^3.6.0",
+    "jsonwebtoken": "^8.5.1",
+    "jwa": "^1.4.1",
+    "jws": "^3.2.2",
+    "lodash.includes": "^4.3.0",
+    "lodash.isboolean": "^3.0.3",
+    "lodash.isinteger": "^4.0.4",
+    "lodash.isnumber": "^3.0.3",
+    "lodash.isplainobject": "^4.0.6",
+    "lodash.isstring": "^4.0.1",
+    "lodash.once": "^4.1.1",
+    "ms": "^2.1.3",
+    "mssql": "^7.2.1",
+    "safe-buffer": "^5.2.1",
+    "semver": "^5.7.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc && node sql/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shalev1104/NachshonCourse.git"
+  },
+  "author": "Shalev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Shalev1104/NachshonCourse/issues"
+  },
+  "homepage": "https://github.com/Shalev1104/NachshonCourse#readme",
+  "devDependencies": {
+    "typescript": "^4.4.2"
+  }
+}

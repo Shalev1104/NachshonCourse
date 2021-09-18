@@ -1,0 +1,38 @@
+<nav class="second">
+    <select name="filter" id="filter">
+        <option value="">Filter</option>
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="popular">Popular</option>
+    </select>
+    <form action="/" method="POST" id="search">
+        <input type="text" name="searchBar" id="searchBar" value="" placeholder="Search..."/>
+    </form>
+    <select name="type" id="type">
+        <option value="">Type</option>
+        <option value="discussion">Discussion</option>
+        <option value="question">Question</option>
+        <option value="information">Information</option>
+        <option value="entertainment">Entertainment</option>
+        <option value="noType">No Type</option>
+    </select>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#filter").on('change', function() {
+                const value = $(this).val;
+                console.log(value);
+            });
+            
+            $("#searchBar").on('change', function() {
+                const value = $(this).val;
+                console.log(value);
+            });
+
+            $("#type").on('change', function() {
+                const value = $(this).val;
+                console.log(value);
+            });
+        });
+    </script>
+</nav>

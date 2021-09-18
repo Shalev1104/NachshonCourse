@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Reddit | <%= title %></title>
+        <link rel="stylesheet" href="/style.css"/>
+        <link rel="icon" href="../images/redditIcon.ico" type="image/redditIcon" />
+    </head>
+    <body>
+        <nav class="first">
+            <div>
+              <a href="/"><h1>REDDIT 2.0</h1></a>
+              <p>SQL Server Execrise</p>
+            </div>
+            <ul>
+              <% try{ if(user) { %>
+                <li><a href="/blogs/new">New Blog</a></li>
+                <li><a href="#">User icon</a> </li>
+              <% }} catch { %>  
+                <li><a href="/register">Register</a></li>
+                <li><a href="/login">Login</a></li>
+              <% } %>
+            </ul>
+        </nav>
+    </body>
+</html>

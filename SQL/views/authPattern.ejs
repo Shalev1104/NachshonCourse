@@ -1,0 +1,53 @@
+<form class="center" action=<%= action %>>
+    <h2><%= title %></h2>
+        <label for="uName">Username</label>
+        <input type="text" id="uName" name="uName" required />
+        <label for="pw">Password</label>
+        <input type="password" id="pw" name="pw" required />
+        <div id="error"></div>
+    <div><label>Show password</label><input type="checkbox"/></div> <br/>
+    <input type="submit" name="btnSubmit" id="btnSubmit"/>
+</form>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+// show pw
+$("input[type='checkbox']").on('change',function() {
+    if ($(this).is(':checked'))
+    {
+        $("#pw").prop("type", "text");
+    }
+    else
+    {
+        $("#pw").prop("type", "password");
+    }
+});
+const form = document.querySelector('form');
+const error = document.querySelector('#error');
+
+form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    error.textContent = '';
+
+    const username = form.uName.value;
+    const password = form.pw.value;
+    try {
+        const res = await fetch(form.action, { 
+            method: 'POST', 
+            body: JSON.stringify({ username, password }),
+            headers: {'Content-Type': 'application/json'}
+        });
+        const data = await res.json();
+
+        if(data.error)
+            error.textContent = data.error;
+        else
+        {
+            location.assign('/');
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+</script>

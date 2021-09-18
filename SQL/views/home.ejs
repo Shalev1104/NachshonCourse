@@ -1,0 +1,17 @@
+<%- include('./header') %>
+<%- include('./filters') %>
+    <% if(posts.length > 0) { %>
+        <div id="scroll">
+        <% posts.forEach(post => { %>
+            <div class="blog">
+                <kbd class="item1"><%= post.type %></kbd>
+                <details class="item2"><summary><%= post.title %></summary> <%= post.description %></details>
+                
+                <div class="item3 vote"><input type="button" value="39 ↑" name="upVote" id="upVote"/></div>
+                <div class="item4 vote"><input type="button" value="39 ↓" name="downVote" id="downVote" /></div>
+            </div>
+        <% }); %>
+        </div>
+    <% } else { %>
+    <p>No posts to show. <a href="#">Create a new one</a></p>
+    <% } %>
