@@ -8,16 +8,18 @@
     <body>
         <nav class="first">
             <div>
-              <a href="/"><h1>REDDIT 2.0</h1></a>
+              <a href="/posts"><h1>REDDIT 2.0</h1></a>
               <p>SQL Server Execrise</p>
             </div>
             <ul>
               <% try{ if(user) { %>
-                <li><a href="/blogs/new">New Blog</a></li>
-                <li><a href="#">User icon</a> </li>
-              <% }} catch { %>  
-                <li><a href="/register">Register</a></li>
-                <li><a href="/login">Login</a></li>
+                <li>Welcome, <%= user %></li>
+                <li><a href="/posts/new">New Blog</a></li>
+                <li><a href="/posts/:user">MyBlogs</a></li>
+                <li><a href="/user/logout">Logout</a></li>
+              <% }} catch { %>
+                <li><a href="/user/register">Register</a></li>
+                <li><a href="/user/login">Login</a></li>
               <% } %>
             </ul>
         </nav>

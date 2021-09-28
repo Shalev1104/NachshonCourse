@@ -37,22 +37,59 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Post = void 0;
+var sql_1 = require("./sql");
 var Post = /** @class */ (function () {
-    function Post(_title, _description) {
+    function Post(_userId, _type, _title, _description) {
+        this._userId = _userId;
+        this._type = _type;
         this._title = _title;
         this._description = _description;
     }
-    Post.prototype.create = function () {
+    Post.create = function (post) {
         return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                return [2 /*return*/];
+            var date, formattedDate, _a, _b, _c, _d;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
+                    case 0:
+                        date = new Date(Date.now());
+                        formattedDate = (((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear());
+                        _b = (_a = sql_1.Model).insert;
+                        _c = ["POSTS"];
+                        _d = [post._userId];
+                        return [4 /*yield*/, post.getTypeId()];
+                    case 1: return [4 /*yield*/, _b.apply(_a, _c.concat([_d.concat([_e.sent(), formattedDate, post._title, post._description])]))];
+                    case 2: return [2 /*return*/, _e.sent()];
+                }
             });
         });
     };
-    Post.prototype.delete = function () {
+    Post.prototype.getTypeId = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM PostType where PostType.type='" + this._type + "'")];
+                    case 1: return [2 /*return*/, (_a.sent()).recordset[0].id];
+                }
+            });
+        });
+    };
+    Post.getAllPosts = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("\n        SELECT po.id,\n            po.title,\n            CASE WHEN po.description IS NULL THEN '' ELSE po.description END AS description,\n            CONVERT(varchar, po.pDate, 104) AS pDate,\n            pt.type,\n            us.userName,\n            SUM(CASE WHEN vt.isLike = 1 THEN 1 ELSE 0 END) AS upvotes,\n            SUM(CASE WHEN vt.isLike = 0 THEN 1 ELSE 0 END) AS downvotes\nFROM Posts po\n     INNER JOIN PostType pt ON po.typeId = pt.id\n     INNER JOIN Users us ON po.userId = us.id\n     LEFT OUTER JOIN Votes vt ON vt.postId = po.id\nGROUP BY po.id,\n         po.pDate,\n         po.title,\n         CASE WHEN po.description IS NULL THEN '' ELSE po.description END,\n         pt.type,\n         us.userName;\n         ")];
+                    case 1: return [2 /*return*/, ((_a.sent()).recordsets[0])];
+                }
+            });
+        });
+    };
+    Post.getPostsBySearch = function (search) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("\n        SELECT po.id,\n            po.title,\n            CASE WHEN po.description IS NULL THEN '' ELSE po.description END AS description,\n            CONVERT(varchar, po.pDate, 104) AS pDate,\n            pt.type,\n            us.userName,\n            SUM(CASE WHEN vt.isLike = 1 THEN 1 ELSE 0 END) AS upvotes,\n            SUM(CASE WHEN vt.isLike = 0 THEN 1 ELSE 0 END) AS downvotes\nFROM Posts po\n     INNER JOIN PostType pt ON po.typeId = pt.id\n     INNER JOIN Users us ON po.userId = us.id\n     LEFT OUTER JOIN Votes vt ON vt.postId = po.id\nWHERE title like '%" + search + "%' OR description like '%" + search + "%'\n\nGROUP BY po.id,\n         po.pDate,\n         po.title,\n         CASE WHEN po.description IS NULL THEN '' ELSE po.description END,\n         pt.type,\n         us.userName;\n         ")];
+                    case 1: return [2 /*return*/, (_a.sent()).recordsets[0]]; // problem here. need to add votes and format date;
+                }
             });
         });
     };
@@ -70,6 +107,14 @@ var Post = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    Object.defineProperty(Post.prototype, "userId", {
+        get: function () {
+            return this._userId;
+        },
+        enumerable: false,
+        configurable: true
+    });
     return Post;
 }());
 exports.Post = Post;
+module.exports = { Post: Post };

@@ -35,26 +35,24 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.Vote = void 0;
 var sql_1 = require("./sql");
-var bcrypt_1 = __importDefault(require("bcrypt"));
-var User = /** @class */ (function () {
-    function User(_userName, _password) {
-        this._userName = _userName;
-        this._password = _password;
+var User_1 = require("./User");
+var Vote = /** @class */ (function () {
+    function Vote(postId, userId, isLike) {
+        this.postId = postId;
+        this.userId = userId;
+        this.isLike = isLike;
     }
-    User.isExists = function (userName) {
+    Vote.isExists = function (postId, userId) {
         return __awaiter(this, void 0, void 0, function () {
             var _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM Users WHERE userName='" + userName + "';")];
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM " + Vote.table + " WHERE postId ='" + postId + "' AND userId ='" + userId + "';")];
                     case 1: return [4 /*yield*/, (_b.sent()).recordset[0]];
                     case 2: return [2 /*return*/, _b.sent()];
                     case 3:
@@ -65,87 +63,77 @@ var User = /** @class */ (function () {
             });
         });
     };
-    User.authenticate = function (user) {
+    Vote.getUserVotes = function (username) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _c, _d, _e, _f, _g, _h;
-            return __generator(this, function (_j) {
-                switch (_j.label) {
-                    case 0:
-                        _a = user;
-                        _c = (_b = bcrypt_1.default).hash;
-                        _d = [user._password];
-                        return [4 /*yield*/, bcrypt_1.default.genSalt()];
-                    case 1: return [4 /*yield*/, _c.apply(_b, _d.concat([_j.sent()]))];
+            var userId;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, User_1.User.isExists(username)];
+                    case 1: return [4 /*yield*/, (_a.sent()).id];
                     case 2:
-                        _a._password = _j.sent();
-                        _f = (_e = sql_1.Model).insert;
-                        _g = ["USERS"];
-                        _h = [user._userName, user._password];
-                        return [4 /*yield*/, user.getRoleId()];
-                    case 3: return [4 /*yield*/, _f.apply(_e, _g.concat([_h.concat([_j.sent()])]))];
-                    case 4: return [2 /*return*/, _j.sent()];
+                        userId = _a.sent();
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + Vote.table + " where userId='" + userId + "';")];
+                    case 3: return [2 /*return*/, (_a.sent()).recordset];
                 }
             });
         });
     };
-    User.prototype.getRoleId = function () {
+    Vote.prototype.delete = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
+                    case 0:
+                        _b = (_a = sql_1.Model).delete;
+                        _c = [Vote.table, "id"];
+                        return [4 /*yield*/, this.getId()];
+                    case 1: return [4 /*yield*/, _b.apply(_a, _c.concat([_d.sent()]))];
+                    case 2: return [2 /*return*/, _d.sent()];
+                }
+            });
+        });
+    };
+    Vote.prototype.insert = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM Roles where Roles.name='" + this.constructor.name + "'")];
-                    case 1: return [2 /*return*/, (_a.sent()).recordset[0].id];
+                    case 0: return [4 /*yield*/, sql_1.Model.insert(Vote.table, [this.boolToBit(), this.postId, this.userId])];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    User.login = function (userName, password) {
+    Vote.prototype.update = function (isLike) {
         return __awaiter(this, void 0, void 0, function () {
-            var user, _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var _a, _b, _c;
+            return __generator(this, function (_d) {
+                switch (_d.label) {
                     case 0:
-                        _b.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, User.isExists(userName)];
-                    case 1:
-                        user = _b.sent();
-                        return [4 /*yield*/, bcrypt_1.default.compare(password, user.password)];
-                    case 2:
-                        if (!(_b.sent()))
-                            return [2 /*return*/, undefined];
-                        return [2 /*return*/, user];
-                    case 3:
-                        _a = _b.sent();
-                        return [2 /*return*/, undefined];
-                    case 4: return [2 /*return*/];
+                        this.isLike = isLike;
+                        _b = (_a = sql_1.Model).update;
+                        _c = [Vote.table, 'id'];
+                        return [4 /*yield*/, this.getId()];
+                    case 1: return [4 /*yield*/, _b.apply(_a, _c.concat([_d.sent(), ["isLike"], [this.boolToBit()]]))];
+                    case 2: return [2 /*return*/, _d.sent()];
                 }
             });
         });
     };
-    User.prototype.getId = function () {
+    Vote.prototype.getId = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, User.isExists(this._userName)];
+                    case 0: return [4 /*yield*/, Vote.isExists(this.postId, this.userId)];
                     case 1: return [2 /*return*/, (_a.sent()).id];
                 }
             });
         });
     };
-    Object.defineProperty(User.prototype, "userName", {
-        get: function () {
-            return this._userName;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    Object.defineProperty(User.prototype, "password", {
-        get: function () {
-            return this._password;
-        },
-        enumerable: false,
-        configurable: true
-    });
-    return User;
+    Vote.prototype.boolToBit = function () {
+        return this.isLike ? 1 : 0;
+    };
+    Vote.table = "Votes";
+    return Vote;
 }());
-exports.User = User;
-module.exports = { User: User };
+exports.Vote = Vote;
+module.exports = { Vote: Vote };

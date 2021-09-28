@@ -40,26 +40,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var User_1 = require("../model/User");
+var errorHandler_1 = require("../middleware/errorHandler");
 require('dotenv').config();
-module.exports = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var token, user;
-    var _a;
-    return __generator(this, function (_b) {
-        try {
-            token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-            user = jsonwebtoken_1.default.verify(token, process.env.USER_SECRET);
-            // if (req.body.userId !== await user.getId()) {
-            //     throw 'Invalid user ID';
-            // }
-            // else {
-            //     next(user);
-            // }
-        }
-        catch (err) {
-            res.status(401).json({
-                error: new Error('Invalid request!')
+var authorize = function (req, res, next) {
+    try {
+        var token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : req.cookies.jwt;
+        jsonwebtoken_1.default.verify(token, process.env.USER_SECRET, function (err, decodedToken) {
+            if (err)
+                return next(new errorHandler_1.ErrorHandler(403, err.message));
+            return next();
+        });
+    }
+    catch (err) {
+        return next(new errorHandler_1.ErrorHandler(401));
+    }
+};
+var setUserToView = function (req, res, next) {
+    try {
+        var token = req.headers.authorization ? req.headers.authorization.split(' ')[1] : req.cookies.jwt;
+        jsonwebtoken_1.default.verify(token, process.env.USER_SECRET, function (err, decodedToken) { return __awaiter(void 0, void 0, void 0, function () {
+            var _a;
+            var _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        if (err)
+                            return [2 /*return*/, next()];
+                        _a = res.locals;
+                        return [4 /*yield*/, User_1.User.isExists(decodedToken.user)];
+                    case 1:
+                        _a.user = (_b = (_c.sent())) === null || _b === void 0 ? void 0 : _b.userName;
+                        return [2 /*return*/, next()];
+                }
             });
-        }
-        return [2 /*return*/];
-    });
-}); };
+        }); });
+    }
+    catch (_a) {
+        return next();
+    }
+};
+module.exports = { authorize: authorize, setUserToView: setUserToView };

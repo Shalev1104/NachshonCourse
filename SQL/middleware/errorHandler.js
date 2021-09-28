@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ErrorHandler = void 0;
+exports.errHandler = exports.ErrorHandler = void 0;
 var ErrorHandler = /** @class */ (function () {
     function ErrorHandler(_status, _message) {
         this._status = _status;
@@ -52,3 +52,11 @@ var StatusCode;
     StatusCode["NotFound"] = "404";
     StatusCode["InternalServerError"] = "500";
 })(StatusCode || (StatusCode = {}));
+function errHandler(error, req, res, next) {
+    res.status(error.status);
+    if (error.message)
+        return res.json({ error: error.message });
+    return res.json({ status: error.messageStatus });
+}
+exports.errHandler = errHandler;
+module.exports = { ErrorHandler: ErrorHandler, errHandler: errHandler };

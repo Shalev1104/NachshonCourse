@@ -1,38 +1,61 @@
 <nav class="second">
-    <select name="filter" id="filter">
+    <select name="filter" id="filter" onchange="filterChanged(this)">
         <option value="">Filter</option>
         <option value="newest">Newest</option>
         <option value="oldest">Oldest</option>
         <option value="popular">Popular</option>
     </select>
-    <form action="/" method="POST" id="search">
-        <input type="text" name="searchBar" id="searchBar" value="" placeholder="Search..."/>
-    </form>
-    <select name="type" id="type">
-        <option value="">Type</option>
-        <option value="discussion">Discussion</option>
-        <option value="question">Question</option>
-        <option value="information">Information</option>
-        <option value="entertainment">Entertainment</option>
-        <option value="noType">No Type</option>
+    <div id="search">
+        <input type="text" name="searchBar" id="searchBar" value="" placeholder="Search..." onkeyup="searchChanged(this)" />
+    </div>
+    <select name="type" id="type" onchange="typeChanged(this)">
+        <option value="" name="all">Type</option>
+        <option value="discussion" name="discussion">Discussion</option>
+        <option value="question" name="question">Question</option>
+        <option value="information" name="information">Information</option>
+        <option value="entertainment" name="entertainment">Entertainment</option>
+        <option value="No Type" name="No Type">No Type</option>
     </select>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-        $(document).ready(function(){
-            $("#filter").on('change', function() {
-                const value = $(this).val;
-                console.log(value);
-            });
-            
-            $("#searchBar").on('change', function() {
-                const value = $(this).val;
-                console.log(value);
-            });
 
-            $("#type").on('change', function() {
-                const value = $(this).val;
-                console.log(value);
-            });
-        });
+        async function searchChanged(input) 
+        {
+            await filter($(input).val());
+        }
+        function typeChanged(select) 
+        {
+            const value = $(select).val();
+            console.log(value);
+        }
+        function filterChanged(select) 
+        {
+            const value = $(select).val();
+            console.log(value);
+        }
+        async function filter(value)
+        {
+            try
+            {
+                if(value == "") value = "''";
+
+                const res = await fetch(`/posts/search/${value}`, {
+                    method : "GET",
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+
+                if(data.error || data.status)
+                    throw new Error(data.error ? data.error : data.status);
+                    
+                $('.list').replaceWith(data.html);
+                markVotes(data.votes);
+                
+            }
+            catch(err)
+            {
+                console.log(err);
+            }
+        }
     </script>
 </nav>

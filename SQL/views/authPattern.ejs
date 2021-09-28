@@ -4,7 +4,7 @@
         <input type="text" id="uName" name="uName" required />
         <label for="pw">Password</label>
         <input type="password" id="pw" name="pw" required />
-        <div id="error"></div>
+        <div class="error"></div>
     <div><label>Show password</label><input type="checkbox"/></div> <br/>
     <input type="submit" name="btnSubmit" id="btnSubmit"/>
 </form>
@@ -22,7 +22,7 @@ $("input[type='checkbox']").on('change',function() {
     }
 });
 const form = document.querySelector('form');
-const error = document.querySelector('#error');
+const error = document.querySelector('.error');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -38,8 +38,8 @@ form.addEventListener('submit', async (e) => {
             headers: {'Content-Type': 'application/json'}
         });
         const data = await res.json();
-
-        if(data.error)
+        console.log(data);
+        if(data.error || data.status)
             error.textContent = data.error;
         else
         {

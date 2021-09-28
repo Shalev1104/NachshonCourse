@@ -1,3 +1,4 @@
+import express from 'express';
 export class ErrorHandler {
     private _messageStatus: string = '';
     constructor(private _status? : number, private _message? : string)
@@ -35,3 +36,10 @@ enum StatusCode {
     NotFound = "404",
     InternalServerError = "500"
 }
+export function errHandler(error : ErrorHandler, req: express.Request, res: express.Response, next: express.NextFunction) {
+    res.status(error.status as number);
+    if(error.message)
+        return res.json({ error : error.message });
+    return res.json({ status : error.messageStatus });
+}
+module.exports = { ErrorHandler, errHandler}

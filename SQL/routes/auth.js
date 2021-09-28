@@ -43,49 +43,46 @@ var express_1 = __importDefault(require("express"));
 var User_1 = require("../model/User");
 var Admin_1 = require("../model/Admin");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-var errorHandler_1 = require("../api/errorHandler");
+var errorHandler_1 = require("../middleware/errorHandler");
 function generateToken(user) {
-    if (user instanceof Admin_1.Admin)
-        return jsonwebtoken_1.default.sign(user.userName, process.env.ADMIN_SECRET);
-    return jsonwebtoken_1.default.sign(user.userName, process.env.USER_SECRET);
+    var secretType = user instanceof Admin_1.Admin ? process.env.ADMIN_SECRET : process.env.USER_SECRET;
+    return jsonwebtoken_1.default.sign({ user: user.userName }, secretType, { expiresIn: process.env.JWT_EXPIRE });
 }
 var router = express_1.default.Router();
+router.get("/register", function (req, res) {
+    res.render('register', { title: 'Register', action: '/user/register' });
+});
+router.get("/login", function (req, res) {
+    res.render('login', { title: 'Login', action: '/user/login' });
+});
 router.post('/register', function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, username, password, role, user_1, err_1;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
+    var _a, username, password, role, user, token, _b, _c, err_1;
+    var _d;
+    return __generator(this, function (_e) {
+        switch (_e.label) {
             case 0:
-                _b.trys.push([0, 2, , 3]);
+                _e.trys.push([0, 4, , 5]);
                 _a = req.body, username = _a.username, password = _a.password, role = _a.role;
                 return [4 /*yield*/, User_1.User.isExists(username)];
             case 1:
-                if (_b.sent())
+                if (_e.sent())
                     return [2 /*return*/, next(new errorHandler_1.ErrorHandler(409, "username already exists"))];
-                user_1 = (role === 'ADMIN' ? new Admin_1.Admin(username, password) : new User_1.User(username, password));
-                user_1.authenticate()
-                    .then(function () { return __awaiter(void 0, void 0, void 0, function () {
-                    var token, _a, _b;
-                    var _c;
-                    return __generator(this, function (_d) {
-                        switch (_d.label) {
-                            case 0:
-                                token = generateToken(user_1);
-                                res.cookie('jwt', token, { httpOnly: true });
-                                _b = (_a = res.status(201)).json;
-                                _c = {};
-                                return [4 /*yield*/, user_1.getId()];
-                            case 1: return [2 /*return*/, _b.apply(_a, [(_c.user = _d.sent(), _c)])];
-                        }
-                    });
-                }); })
-                    .catch(function () {
-                    return next(new errorHandler_1.ErrorHandler(400, 'failed validate field corectly'));
-                });
-                return [3 /*break*/, 3];
+                user = (role == 'ADMIN' ? new Admin_1.Admin(username, password) : new User_1.User(username, password));
+                return [4 /*yield*/, User_1.User.authenticate(user)];
             case 2:
-                err_1 = _b.sent();
+                if (!(_e.sent())) {
+                    throw new Error('Unable to insert fields');
+                }
+                token = generateToken(user);
+                res.cookie('jwt', token, { httpOnly: true });
+                _c = (_b = res.status(201)).json;
+                _d = {};
+                return [4 /*yield*/, user.getId()];
+            case 3: return [2 /*return*/, _c.apply(_b, [(_d.user = _e.sent(), _d)])];
+            case 4:
+                err_1 = _e.sent();
                 return [2 /*return*/, next(new errorHandler_1.ErrorHandler(400, err_1.message))];
-            case 3: return [2 /*return*/];
+            case 5: return [2 /*return*/];
         }
     });
 }); });
@@ -103,7 +100,7 @@ router.post('/login', function (req, res, next) { return __awaiter(void 0, void 
                     return [2 /*return*/, next(new errorHandler_1.ErrorHandler(401, "username or password incorrect"))];
                 token = generateToken(user);
                 res.cookie('jwt', token, { httpOnly: true });
-                return [2 /*return*/, res.status(200).json({ login: true })];
+                return [2 /*return*/, res.status(200).json({ user: user.id })];
             case 2:
                 err_2 = _b.sent();
                 return [2 /*return*/, next(new errorHandler_1.ErrorHandler(400, err_2.message))];
@@ -111,4 +108,8 @@ router.post('/login', function (req, res, next) { return __awaiter(void 0, void 
         }
     });
 }); });
+router.get('/logout', function (req, res) {
+    res.cookie('jwt', '', { maxAge: 1 });
+    res.redirect('/');
+});
 module.exports = router;

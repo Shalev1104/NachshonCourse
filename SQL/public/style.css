@@ -54,20 +54,23 @@ nav p, nav a{
   padding: 5px;
   outline: none;
 }
-.item1 { grid-area: title; margin: 0 auto;}
+.item1 { grid-area: title; margin: 0 auto; position: absolute;}
 .item2 { grid-area: content;}
 .item3 { grid-area: upvote;}
 .item4 { grid-area: downvote;}
+.item5 { grid-area: date;}
+.item6 { grid-area : user;}
 
 .vote {
-  text-align: right;
-  margin: 10px;
+  text-align: center;
+  margin: 5px;
+  height: fit-content;
 }
-#upvote:hover{
+.upvote{
   background-color: #04AA6D;
   color:white;
 }
-#downvote:hover{
+.downvote{
   background-color: red;
   color:white;
 }
@@ -79,13 +82,11 @@ nav p, nav a{
   position: relative;
   display: grid;
   word-break: break-all;
+  grid-template-columns: 0.1fr 0.8fr 0.1fr;
   grid-template-areas: 
-  'title title title title title title'
-  'content content content content content upvote'
-  'content content content content content upvote'
-  'content content content content content downvote'
-  'content content content content content downvote'
-  'content content content content content downvote';
+  'user title date'
+  'content content upvote'
+  'content content downvote'
 }
 .blog:hover
 {
@@ -123,7 +124,7 @@ kbd {
   width: 100%;
   outline: none;
  }
- #error
+ .error
  {
   color: #ff0099;
   margin: 10px 2px;
@@ -190,4 +191,16 @@ kbd {
 }
 ::-webkit-scrollbar-thumb:hover{
   background-color: red;
+}
+#new-post div, #new-post label
+{
+  display: flex;
+}
+#new-post label
+{
+  align-items: center;
+}
+#description-label
+{
+  float: left;
 }

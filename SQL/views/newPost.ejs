@@ -1,0 +1,51 @@
+<%- include('./header') %>
+<br/><h1 class="center">Create new post</h1><br/>
+<form id="new-post" class="center" action= <%= action %>>
+    <div>
+    <label for="title" >Title</label><input type="text" name="title" id="title" required />
+    <select name="type" id="type" required>
+        <option value="" name="all">Type</option>
+        <option value="discussion" name="discussion">Discussion</option>
+        <option value="question" name="question">Question</option>
+        <option value="information" name="information">Information</option>
+        <option value="entertainment" name="entertainment">Entertainment</option>
+        <option value="No Type" name="No Type">No Type</option>
+    </select>
+    </div>
+    <br/>
+    <label for="description" id="description-label">description</label>
+    <textarea rows="5" cols="50" name="description" placeholder="..."></textarea><br/><br/>
+    <div class="error"></div>
+    <input type="submit" name="btnPost" id="btnPost"/>
+</form>
+<script>
+    const form = document.querySelector('form');
+    const error = document.querySelector('.error');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const title = form.title.value;
+        const type = form.type.value;
+        const description = form.description.value;
+        const username = "<%= user %>";
+
+        try {
+            const res = await fetch(form.action, { 
+                method: 'POST', 
+                body: JSON.stringify({ title, type, description, username }),
+                headers: {'Content-Type': 'application/json'}
+            });
+            const data = await res.json();
+            console.log(data);
+            if(data.error || data.status)
+                error.textContent = data.error;
+            else
+            {
+                location.assign('/');
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
+</script>

@@ -3,37 +3,33 @@ import bcrypt from 'bcrypt';
 export class User {
     constructor(protected _userName : string, protected _password : string)
     {
-        
+
     }
-    static async isExists(userName : string) : Promise<User|undefined>
+    static async isExists(userName : string)
     {
         try
         {
-            return await (await Model.runQuery(`SELECT * FROM Users WHERE userName='${userName}';`)).recordset[0] as User;
+            return await (await Model.runQuery(`SELECT * FROM Users WHERE userName='${userName}';`)).recordset[0];
         }
         catch
         {
             return undefined;
         }
     }
-    async authenticate() : Promise<boolean>
+    static async authenticate(user : User) : Promise<boolean>
     {
-            this._password = await bcrypt.hash(this._password, await bcrypt.genSalt());
-            console.log(await this.getRoleId());
-            const newUser = await Model.runQuery(`INSERT INTO Users VALUES('${this._userName}','${this._password}', '${await this.getRoleId()}');`);
-            return newUser.rowsAffected[0] > 0;
+        user._password = await bcrypt.hash(user._password, await bcrypt.genSalt());
+        return await Model.insert("USERS", [user._userName, user._password, await user.getRoleId()]);
     }
     async getRoleId() : Promise<number>
     {
         return (await Model.runQuery(`SELECT id FROM Roles where Roles.name='${this.constructor.name}'`)).recordset[0].id;
     }
-    static async login(userName : string, password : string) : Promise<User|undefined>
+    static async login(userName : string, password : string)
     {
         try
         {
             const user = await User.isExists(userName);
-            if(!user)
-                return undefined;
             if(!await bcrypt.compare(password, user.password))
                 return undefined;
             return user;
@@ -45,7 +41,7 @@ export class User {
     }
     async getId() : Promise<number>
     {
-        return (await Model.runQuery(`SELECT id FROM Users WHERE userName ='${this.userName}';`)).recordset[0].id;
+        return (await User.isExists(this._userName)).id;
     }
     get userName(){
         return this._userName;

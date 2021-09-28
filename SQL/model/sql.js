@@ -58,6 +58,47 @@ var Model = /** @class */ (function () {
             });
         });
     };
+    Model.insert = function (table, arrValues) {
+        return __awaiter(this, void 0, void 0, function () {
+            var insert;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        arrValues = arrValues.map(function (i) { return "'" + i + "'"; });
+                        return [4 /*yield*/, this.runQuery("INSERT INTO " + table + " VALUES(" + arrValues.join() + ");")];
+                    case 1:
+                        insert = _a.sent();
+                        return [2 /*return*/, insert.rowsAffected[0] > 0];
+                }
+            });
+        });
+    };
+    Model.update = function (table, where, whereData, set, setData) {
+        return __awaiter(this, void 0, void 0, function () {
+            var update;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.runQuery("UPDATE " + table + " SET " + set.map(function (val, i) { return val + "=" + setData[i]; }).join() + " WHERE " + where + "=" + whereData + ";")];
+                    case 1:
+                        update = _a.sent();
+                        return [2 /*return*/, update.rowsAffected[0] > 0];
+                }
+            });
+        });
+    };
+    Model.delete = function (table, where, whereData) {
+        return __awaiter(this, void 0, void 0, function () {
+            var remove;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.runQuery("DELETE FROM " + table + " WHERE " + where + "=" + whereData + ";")];
+                    case 1:
+                        remove = _a.sent();
+                        return [2 /*return*/, remove.rowsAffected[0] > 0];
+                }
+            });
+        });
+    };
     return Model;
 }());
 exports.Model = Model;
