@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 require('dotenv').config();
 
 const app = express();
+const port = process.env.PORT || 3000;
 
 //Middlewares
 const { setUserToView } = require('./middleware/authorize');
@@ -23,6 +24,7 @@ app.get('*', setUserToView);
 //Routes
 app.use('/user',require('./routes/auth'));
 app.use('/posts',require('./routes/posts'));
+
 //Redirects
 app.get("/", (req : express.Request, res : express.Response) => {
     res.redirect('/posts');
@@ -32,4 +34,4 @@ app.use((req : express.Request ,res : express.Response, next : express.NextFunct
     next(new ErrorHandler(404));
 });
 app.use(errHandler);
-app.listen(3000);
+app.listen(port);

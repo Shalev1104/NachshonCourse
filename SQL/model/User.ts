@@ -1,6 +1,7 @@
 import { Model } from './sql';
 import bcrypt from 'bcrypt';
 export class User {
+    protected static table = 'Users';
     constructor(protected _userName : string, protected _password : string)
     {
 
@@ -9,7 +10,7 @@ export class User {
     {
         try
         {
-            return await (await Model.runQuery(`SELECT * FROM Users WHERE userName='${userName}';`)).recordset[0];
+            return await (await Model.runQuery(`SELECT * FROM ${User.table} WHERE userName='${userName}';`)).recordset[0];
         }
         catch
         {
@@ -19,7 +20,7 @@ export class User {
     static async authenticate(user : User) : Promise<boolean>
     {
         user._password = await bcrypt.hash(user._password, await bcrypt.genSalt());
-        return await Model.insert("USERS", [user._userName, user._password, await user.getRoleId()]);
+        return await Model.insert(User.table, [user._userName, user._password, await user.getRoleId()]);
     }
     async getRoleId() : Promise<number>
     {

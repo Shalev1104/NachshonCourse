@@ -1,27 +1,10 @@
 <div class="list">
+
 <% if(posts.length > 0) { %>
-    <div id="scroll">
-    <% posts.forEach(post => { %>
-        <div class="blog" id="<%= post.id %>">
-            <div class="item6"><%= post.userName %></div>
-            <kbd class="item1"><%= post.type %></kbd>
-            <details class="item2"><summary><%= post.title %></summary> <%= post.description %></details>
-            <div class="item5 center"><%= post.pDate %></div>
-            <div class="item3 vote"><input type="button" value="<%= post.upvotes %> ↑" name="upVote" onclick="toggleUpvote(this)"/></div>
-            <div class="item4 vote"><input type="button" value="<%= post.downvotes %> ↓" name="downVote" onclick="toggleDownvote(this)"/></div>
-        </div>
-    <% }); %>
+    <div class="scroll">
+        <%- include('./postsTemplate') %>
     </div>
 <% } else { %>
 <p>No posts to show. <a href="" onclick="adjust(this)">Create a new one</a></p>
 <% } %>
 </div>
-<script>
-    function adjust(element)
-    {
-        if(user)
-            element.href = "posts/new";
-        else
-            element.href = "user/login";
-    }
-</script>

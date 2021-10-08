@@ -1,0 +1,9 @@
+<% comments.forEach(comment => { %>
+<div class="comment">
+    <div><%= comment.userName %></div> 
+    <div class="comment-content">
+        <div class="comment-desc"><%= comment.comment %></div>
+        <button class="btn-overflow">...</button>
+    </div>
+</div>
+<% }); %>

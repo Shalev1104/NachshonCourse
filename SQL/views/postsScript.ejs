@@ -1,0 +1,137 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    const user = "<%= typeof user === 'string' ? user : undefined %>";
+    if(isAuth())  markVotes(JSON.parse('<%-JSON.stringify(votes)%>'));
+    function isAuth()
+    {
+        if(user !== "")
+            return true;
+        return false;
+    }
+    function adjust(element)
+    {
+        if(user)
+            element.href = "posts/new";
+        else
+            element.href = "user/login";
+    }
+    function expandPost(element)
+    {
+        const postId = $(element).attr('id');
+        location.assign(`/posts/${postId}`);
+    }
+    async function markVotes(votes)
+    {
+        votes.map(vote => {
+
+            if(vote.isLike)
+                $(`.blog[id=${vote.postId}] [name=upVote]`).addClass("upvote");
+
+            else
+                $(`.blog[id=${vote.postId}] [name=downVote]`).addClass("downvote");
+        });
+    }
+    function toggleUpvote(upvote)
+    {
+        if(!isAuth())
+            return location.assign("/user/login");
+
+        const downvote = ($(upvote).parent().parent().find("[name=downVote]")[0]);
+        const postId = getPostByVote(upvote);
+
+        if(downvote.classList.contains("downvote"))
+        {
+            addVote("PUT", postId, true).then(() => 
+            {
+                downvote.classList.remove("downvote");
+                upvote.classList.add("upvote");
+                downvote.value = (parseInt(downvote.value[0]) - 1).toString() + downvote.value.slice(1);
+                upvote.value = (parseInt(upvote.value[0]) + 1).toString() + upvote.value.slice(1);
+            });
+        }
+        else
+        {
+            if(upvote.classList.contains("upvote"))
+            {
+                addVote("DELETE", postId, undefined).then(() => 
+                {
+                    upvote.classList.remove("upvote");
+                    upvote.value = (parseInt(upvote.value[0]) - 1).toString() + upvote.value.slice(1);
+                });
+            }
+            else
+            {
+                addVote("POST", postId, true).then(() =>
+                {
+                    upvote.classList.add("upvote");
+                    upvote.value = (parseInt(upvote.value[0]) + 1).toString() + upvote.value.slice(1);
+                });
+            }
+        }
+    }
+    function toggleDownvote(downvote)
+    {
+        if(!isAuth())
+            return location.assign("/user/login");
+        
+        const upvote = ($(downvote).parent().parent().find("[name=upVote]")[0]);
+        const postId = getPostByVote(downvote);
+                
+        if(upvote.classList.contains("upvote"))
+        {
+            addVote("PUT", postId, false).then(() =>
+            {
+                upvote.classList.remove("upvote");
+                downvote.classList.add("downvote");
+                upvote.value = (parseInt(upvote.value[0]) - 1).toString() + upvote.value.slice(1);
+                downvote.value = (parseInt(downvote.value[0]) + 1).toString() + downvote.value.slice(1);
+            });
+        }
+        else
+        {
+            if(downvote.classList.contains("downvote"))
+            {
+                addVote("DELETE", postId, undefined).then(() => 
+                {
+                    downvote.classList.remove("downvote");
+                    downvote.value = (parseInt(downvote.value[0]) - 1).toString() + downvote.value.slice(1);
+                });
+            }
+            else
+            {
+                addVote("POST", postId, false).then(() => 
+                {
+                    downvote.classList.add("downvote");
+                    downvote.value = (parseInt(downvote.value[0]) + 1).toString() + downvote.value.slice(1);
+                });
+            }
+        }
+    }
+    function getPostByVote(element)
+    {
+        return $(element).parent().parent().prop('id');
+    }
+    function addVote(method, postId, isLike) // POST or PUT
+    {
+        return new Promise(async (resolve, reject) => {
+            try
+            {
+                const res = await fetch(`/posts/${postId}/votes`,{
+                method,
+                body : JSON.stringify({ user, isLike }),
+                headers: {'Content-Type': 'application/json'}
+                });
+                const data = await res.json();
+                if(data.error || data.status)
+                {
+                    throw new Error(data.error ? data.error : data.status);
+                }
+                resolve(data.vote);
+            }
+            catch(err)
+            {
+                reject(err);
+            }
+        });
+    }
+</script>

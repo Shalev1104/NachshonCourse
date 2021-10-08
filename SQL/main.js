@@ -8,6 +8,7 @@ var errorHandler_1 = require("./middleware/errorHandler");
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 require('dotenv').config();
 var app = (0, express_1.default)();
+var port = process.env.PORT || 3000;
 //Middlewares
 var setUserToView = require('./middleware/authorize').setUserToView;
 app.use((0, cookie_parser_1.default)());
@@ -30,4 +31,4 @@ app.use(function (req, res, next) {
     next(new errorHandler_1.ErrorHandler(404));
 });
 app.use(errorHandler_1.errHandler);
-app.listen(3000);
+app.listen(port);

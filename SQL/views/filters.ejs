@@ -1,8 +1,7 @@
 <nav class="second">
-    <select name="filter" id="filter" onchange="filterChanged(this)">
-        <option value="">Filter</option>
-        <option value="newest">Newest</option>
+    <select name="order" id="order" onchange="orderChanged(this)">
         <option value="oldest">Oldest</option>
+        <option value="newest">Newest</option>
         <option value="popular">Popular</option>
     </select>
     <div id="search">
@@ -21,25 +20,23 @@
 
         async function searchChanged(input) 
         {
-            await filter($(input).val());
+            await filter($(input).val(), 'search');
         }
-        function typeChanged(select) 
+        async function typeChanged(select) 
         {
-            const value = $(select).val();
-            console.log(value);
+            await filter($(select).val(), 'type');
         }
-        function filterChanged(select) 
+        async function orderChanged(select) 
         {
-            const value = $(select).val();
-            console.log(value);
+            await filter($(select).val(), 'order');
         }
-        async function filter(value)
+        async function filter(value, type)
         {
             try
             {
                 if(value == "") value = "''";
 
-                const res = await fetch(`/posts/search/${value}`, {
+                const res = await fetch(`${location.pathname}/${type}/${value}`, {
                     method : "GET",
                     headers: {'Content-Type': 'application/json'}
                 });
@@ -49,7 +46,7 @@
                     throw new Error(data.error ? data.error : data.status);
                     
                 $('.list').replaceWith(data.html);
-                markVotes(data.votes);
+                if(isAuth()) markVotes(JSON.parse('<%- JSON.stringify(votes) %>'));
                 
             }
             catch(err)

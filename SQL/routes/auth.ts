@@ -3,6 +3,7 @@ import { User } from '../model/User';
 import { Admin } from '../model/Admin';
 import jwt from 'jsonwebtoken';
 import { ErrorHandler } from '../middleware/errorHandler';
+import csrf from 'csurf';
 
 function generateToken(user : User) : string
 {
@@ -11,16 +12,17 @@ function generateToken(user : User) : string
 }
 
 const router = express.Router();
+const csrfProtection = csrf({cookie : true});
 
-router.get("/register", (req : express.Request, res : express.Response) => {
-    res.render('register', { title: 'Register', action: '/user/register' });
+router.get("/register", csrfProtection, (req : express.Request, res : express.Response) => {
+    res.render('register', { title: 'Register', action: '/user/register', csrfToken : req.csrfToken() });
 });
 
-router.get("/login", (req : express.Request, res : express.Response) => {
-    res.render('login', { title : 'Login', action: '/user/login' });
+router.get("/login", csrfProtection, (req : express.Request, res : express.Response) => {
+        res.render('login', { title : 'Login', action: '/user/login', csrfToken : req.csrfToken() });
 });
 
-router.post('/register',async (req : express.Request, res : express.Response, next : express.NextFunction) => {
+router.post('/register', csrfProtection, async (req : express.Request, res : express.Response, next : express.NextFunction) => {
     try
     {
         const { username, password, role } = req.body;
@@ -41,7 +43,7 @@ router.post('/register',async (req : express.Request, res : express.Response, ne
         return next(new ErrorHandler(400, (err as Error).message));
     }
 });
-router.post('/login', async (req : express.Request, res : express.Response, next : express.NextFunction) => {
+router.post('/login', csrfProtection, async (req : express.Request, res : express.Response, next : express.NextFunction) => {
     try {
         const { username, password } = req.body;
         const user = await User.login(username, password);
@@ -62,4 +64,5 @@ router.get('/logout', (req : express.Request, res : express.Response) => {
     res.cookie('jwt', '', { maxAge: 1 });
     res.redirect('/');
 });
+router.use('/:user/posts/', require('./posts'));
 module.exports = router;

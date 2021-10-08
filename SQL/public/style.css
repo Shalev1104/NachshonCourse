@@ -4,7 +4,7 @@ body{
   font-family: Georgia, 'Times New Roman', Times, serif;
   overflow:hidden;
 }
-::selection:not(input):not(select) {
+::selection:not(input):not(select):not(textarea) {
   color:crimson;
 }
 p, h1, a, ul {
@@ -33,6 +33,9 @@ nav ul{
 nav li{
   list-style-type: none;
   margin-left: 30px;
+}
+.active{
+  color:crimson;
 }
 nav li a:hover{
   color:crimson;
@@ -108,7 +111,7 @@ kbd {
  .center{
    text-align: center;
  }
- form:not(#search) {
+ form:not(#search):not(#new-comment-pos) {
   width: 360px;
   margin: 0 auto;
   padding: 30px;
@@ -173,7 +176,7 @@ kbd {
   justify-content: center;
   align-items: baseline;
 }
-#scroll{
+.scroll{
   height: calc(100% - 200px);
   width:100%;
   overflow-y:scroll;
@@ -203,4 +206,29 @@ kbd {
 #description-label
 {
   float: left;
+}
+#comments{
+  width: 50%;
+  margin: 0 auto;
+}
+.comment{
+  border: 1px solid crimson;
+  padding: 10px;
+}
+.comment-desc{
+  height:72px;
+  display:block; 
+  overflow:hidden;
+  word-break: break-word;
+  word-wrap: break-word;
+}
+.btn-overflow {
+  display: none;
+  }
+.comment-content{
+  display: flex;
+  align-items: center;
+}
+#new-comment-pos{
+  justify-content: center;
 }

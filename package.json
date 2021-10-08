@@ -9,6 +9,7 @@
     "dotenv": "^10.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
+    "express-session": "^1.17.2",
     "jquery": "^3.6.0",
     "jsdom": "^17.0.0",
     "jsonwebtoken": "^8.5.1",

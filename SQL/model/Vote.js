@@ -63,7 +63,7 @@ var Vote = /** @class */ (function () {
             });
         });
     };
-    Vote.getUserVotes = function (username) {
+    Vote.getAllUserVotes = function (username) {
         return __awaiter(this, void 0, void 0, function () {
             var userId;
             return __generator(this, function (_a) {
@@ -74,6 +74,26 @@ var Vote = /** @class */ (function () {
                         userId = _a.sent();
                         return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + Vote.table + " where userId='" + userId + "';")];
                     case 3: return [2 /*return*/, (_a.sent()).recordset];
+                }
+            });
+        });
+    };
+    Vote.getUserVotesByPosts = function (username, posts) {
+        return __awaiter(this, void 0, void 0, function () {
+            var userId, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, User_1.User.isExists(username)];
+                    case 1:
+                        userId = (_b.sent()).id;
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + Vote.table + " where userId='" + userId + "' AND postId IN(" + posts.map(function (post) { return post.id; }).join(",") + ");")];
+                    case 2: return [2 /*return*/, (_b.sent()).recordset];
+                    case 3:
+                        _a = _b.sent();
+                        return [2 /*return*/, undefined];
+                    case 4: return [2 /*return*/];
                 }
             });
         });

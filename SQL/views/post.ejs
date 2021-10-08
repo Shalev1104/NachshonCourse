@@ -1,0 +1,68 @@
+<%- include('./header') %>
+<br/>
+<%- include('./postsTemplate') %>
+<div class="center">
+    <% try{ if(user) { %>
+        <form class="comment-content" id="new-comment-pos" action=<%= action %>>
+            <textarea rows="3" cols="30" name="newcomment" id="newcomment" placeholder="add new comment" required></textarea>
+            <input type="submit" name="btnSubmitComment"/>
+        </form>
+    <% } } catch{ %>
+        <p><a href="/user/login">login to create post</a></p>
+    <% } %>
+    <div class="scroll" id="comments" >
+        <%- include('./comment') %>
+    </div>
+</div>
+
+<%- include('./postsScript') %>
+<script>
+    function isMessages()
+    {
+        return $('.comment').length > 0;
+    }
+    if(isMessages())
+    {
+        const text = $('.comment-desc');
+        const btn = $('.btn-overflow');
+        const height = text[0].scrollHeight;
+        const minHeight = parseInt(text.css('height'), 10);
+        if(height > minHeight) {
+            btn.css('display', 'block');
+        }
+        btn.click(function(e) {
+            e.stopPropagation();
+            $(this).hide();
+            $(this).parent().find('.comment-desc').animate({'height': height});
+        });
+    }
+
+    if(user)
+    {
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', async (e) => {
+            try
+            {
+                e.preventDefault();
+                const comment = form.newcomment.value;
+                const res = await fetch(form.action, {
+                    method : 'POST',
+                    body : JSON.stringify({ comment, username : user }),
+                    headers : { 'Content-Type' : 'application/json' }
+                });
+                const data = await res.json();
+                if(data.error || data.status)
+                        throw new Error(data.error ? data.error : data.status);
+
+                $('#comments').prepend(data.html);
+                $(form.newcomment).val('');
+            }
+            catch(err)
+            {
+                console.log(err);
+            }
+        });
+    }
+
+</script>

@@ -1,3 +1,4 @@
+import { IRecordSet } from "mssql";
 import { Model } from "./sql";
 import { User } from "./User";
 
@@ -18,10 +19,22 @@ export class Vote {
             return undefined;
         }
     }
-    static async getUserVotes(username : string)
+    static async getAllUserVotes(username : string)
     {
         const userId = await (await User.isExists(username)).id;
         return (await Model.runQuery(`SELECT * FROM ${Vote.table} where userId='${userId}';`)).recordset;
+    }
+    static async getUserVotesByPosts(username : string, posts : IRecordSet<any>)
+    {
+        try
+        {
+            const userId = (await User.isExists(username)).id;
+            return (await Model.runQuery(`SELECT * FROM ${Vote.table} where userId='${userId}' AND postId IN(${posts.map(post => post.id ).join(",")});`)).recordset;
+        }
+        catch
+        {
+            return undefined;
+        }
     }
     async delete() : Promise<boolean>
     {

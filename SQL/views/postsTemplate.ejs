@@ -1,0 +1,14 @@
+<% posts.forEach(post => { %>
+    <div class="blog" id="<%= post.id %>">
+        <div class="item6"><%= post.userName %></div>
+        <kbd class="item1"><%= post.type %></kbd>
+        <details class="item2"><summary><%= post.title %></summary> <%= post.description %></details>
+        <div class="item5 center"><%= post.pDate %></div>
+        <div class="item3 vote"><input type="button" value="<%= post.upvotes %> ↑" name="upVote" onclick="toggleUpvote(this)"/></div>
+        <div class="item4 vote"><input type="button" value="<%= post.downvotes %> ↓" name="downVote" onclick="toggleDownvote(this)"/></div>
+    </div>
+<% }); %>
+<script>
+    if(window.location.pathname === "/posts")
+        $('.blog').on("dblclick", e => expandPost(e.currentTarget));
+</script>

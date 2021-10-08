@@ -54,7 +54,7 @@ var User = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM Users WHERE userName='" + userName + "';")];
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + User.table + " WHERE userName='" + userName + "';")];
                     case 1: return [4 /*yield*/, (_b.sent()).recordset[0]];
                     case 2: return [2 /*return*/, _b.sent()];
                     case 3:
@@ -79,7 +79,7 @@ var User = /** @class */ (function () {
                     case 2:
                         _a._password = _j.sent();
                         _f = (_e = sql_1.Model).insert;
-                        _g = ["USERS"];
+                        _g = [User.table];
                         _h = [user._userName, user._password];
                         return [4 /*yield*/, user.getRoleId()];
                     case 3: return [4 /*yield*/, _f.apply(_e, _g.concat([_h.concat([_j.sent()])]))];
@@ -145,6 +145,7 @@ var User = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    User.table = 'Users';
     return User;
 }());
 exports.User = User;

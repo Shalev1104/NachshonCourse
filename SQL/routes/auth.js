@@ -44,18 +44,20 @@ var User_1 = require("../model/User");
 var Admin_1 = require("../model/Admin");
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var errorHandler_1 = require("../middleware/errorHandler");
+var csurf_1 = __importDefault(require("csurf"));
 function generateToken(user) {
     var secretType = user instanceof Admin_1.Admin ? process.env.ADMIN_SECRET : process.env.USER_SECRET;
     return jsonwebtoken_1.default.sign({ user: user.userName }, secretType, { expiresIn: process.env.JWT_EXPIRE });
 }
 var router = express_1.default.Router();
-router.get("/register", function (req, res) {
-    res.render('register', { title: 'Register', action: '/user/register' });
+var csrfProtection = (0, csurf_1.default)({ cookie: true });
+router.get("/register", csrfProtection, function (req, res) {
+    res.render('register', { title: 'Register', action: '/user/register', csrfToken: req.csrfToken() });
 });
-router.get("/login", function (req, res) {
-    res.render('login', { title: 'Login', action: '/user/login' });
+router.get("/login", csrfProtection, function (req, res) {
+    res.render('login', { title: 'Login', action: '/user/login', csrfToken: req.csrfToken() });
 });
-router.post('/register', function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+router.post('/register', csrfProtection, function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, username, password, role, user, token, _b, _c, err_1;
     var _d;
     return __generator(this, function (_e) {
@@ -86,7 +88,7 @@ router.post('/register', function (req, res, next) { return __awaiter(void 0, vo
         }
     });
 }); });
-router.post('/login', function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+router.post('/login', csrfProtection, function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, username, password, user, token, err_2;
     return __generator(this, function (_b) {
         switch (_b.label) {
@@ -112,4 +114,5 @@ router.get('/logout', function (req, res) {
     res.cookie('jwt', '', { maxAge: 1 });
     res.redirect('/');
 });
+router.use('/:user/posts/', require('./posts'));
 module.exports = router;

@@ -6,6 +6,7 @@
         <input type="password" id="pw" name="pw" required />
         <div class="error"></div>
     <div><label>Show password</label><input type="checkbox"/></div> <br/>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
     <input type="submit" name="btnSubmit" id="btnSubmit"/>
 </form>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -31,11 +32,13 @@ form.addEventListener('submit', async (e) => {
 
     const username = form.uName.value;
     const password = form.pw.value;
+    const csrfToken = form._csrf.value;
     try {
         const res = await fetch(form.action, { 
+            credentials : "same-origin",
             method: 'POST', 
             body: JSON.stringify({ username, password }),
-            headers: {'Content-Type': 'application/json'}
+            headers: {'Content-Type': 'application/json', 'CSRF-Token': csrfToken}
         });
         const data = await res.json();
         console.log(data);
