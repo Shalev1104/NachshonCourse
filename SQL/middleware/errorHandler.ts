@@ -34,6 +34,7 @@ enum StatusCode {
     Forbidden = "403",
     NonAuthoritativeInformation = "401",
     NotFound = "404",
+    MethodNotAllowed = "405",
     InternalServerError = "500"
 }
 export function errHandler(error : ErrorHandler, req: express.Request, res: express.Response, next: express.NextFunction) {

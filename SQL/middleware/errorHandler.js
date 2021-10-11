@@ -50,6 +50,7 @@ var StatusCode;
     StatusCode["Forbidden"] = "403";
     StatusCode["NonAuthoritativeInformation"] = "401";
     StatusCode["NotFound"] = "404";
+    StatusCode["MethodNotAllowed"] = "405";
     StatusCode["InternalServerError"] = "500";
 })(StatusCode || (StatusCode = {}));
 function errHandler(error, req, res, next) {

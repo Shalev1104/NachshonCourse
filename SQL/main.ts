@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 require('dotenv').config();
 
 const app = express();
+const router = express.Router();
 const port = process.env.PORT || 3000;
 
 //Middlewares
@@ -22,16 +23,47 @@ app.use('/favicon.ico', express.static('redditIcon.ico'));
 app.get('*', setUserToView);
 
 //Routes
-app.use('/user',require('./routes/auth'));
-app.use('/posts',require('./routes/posts'));
+router.use('/user',require('./routes/auth'));
+router.use('/posts',require('./routes/posts'));
 
 //Redirects
-app.get("/", (req : express.Request, res : express.Response) => {
+router.get("/", (req : express.Request, res : express.Response) => {
     res.redirect('/posts');
 });
 
-app.use((req : express.Request ,res : express.Response, next : express.NextFunction) => {
+router.use((req, res, next) => {
+    try
+    {
+        for(let i of router.stack)
+        {
+            if(i.handle.stack)
+            {
+                for(let j of i.handle.stack)
+                {
+                    try
+                    {
+                        if(j.route.path == req.path)
+                        {
+                            return next(new ErrorHandler(405));
+                        }   
+                    }
+                    catch
+                    {
+
+                    }
+                }
+            }
+        }
+    }
+    catch
+    {
+    }
+    return next();
+});
+
+router.use((req : express.Request ,res : express.Response, next : express.NextFunction) => {
     next(new ErrorHandler(404));
 });
-app.use(errHandler);
+router.use(errHandler);
+app.use(router);
 app.listen(port);

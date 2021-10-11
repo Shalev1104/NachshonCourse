@@ -15,10 +15,9 @@
         else
             element.href = "user/login";
     }
-    function expandPost(element)
+    function expandPost(id, url)
     {
-        const postId = $(element).attr('id');
-        location.assign(`/posts/${postId}`);
+        location.assign(`${url}/${id}`);
     }
     async function markVotes(votes)
     {

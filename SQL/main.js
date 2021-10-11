@@ -8,6 +8,7 @@ var errorHandler_1 = require("./middleware/errorHandler");
 var cookie_parser_1 = __importDefault(require("cookie-parser"));
 require('dotenv').config();
 var app = (0, express_1.default)();
+var router = express_1.default.Router();
 var port = process.env.PORT || 3000;
 //Middlewares
 var setUserToView = require('./middleware/authorize').setUserToView;
@@ -21,14 +22,37 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.use('/favicon.ico', express_1.default.static('redditIcon.ico'));
 app.get('*', setUserToView);
 //Routes
-app.use('/user', require('./routes/auth'));
-app.use('/posts', require('./routes/posts'));
+router.use('/user', require('./routes/auth'));
+router.use('/posts', require('./routes/posts'));
 //Redirects
-app.get("/", function (req, res) {
+router.get("/", function (req, res) {
     res.redirect('/posts');
 });
-app.use(function (req, res, next) {
+router.use(function (req, res, next) {
+    try {
+        for (var _i = 0, _a = router.stack; _i < _a.length; _i++) {
+            var i = _a[_i];
+            if (i.handle.stack) {
+                for (var _b = 0, _c = i.handle.stack; _b < _c.length; _b++) {
+                    var j = _c[_b];
+                    try {
+                        if (j.route.path == req.path) {
+                            return next(new errorHandler_1.ErrorHandler(405));
+                        }
+                    }
+                    catch (_d) {
+                    }
+                }
+            }
+        }
+    }
+    catch (_e) {
+    }
+    return next();
+});
+router.use(function (req, res, next) {
     next(new errorHandler_1.ErrorHandler(404));
 });
-app.use(errorHandler_1.errHandler);
+router.use(errorHandler_1.errHandler);
+app.use(router);
 app.listen(port);

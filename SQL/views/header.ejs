@@ -15,7 +15,7 @@
               <% try{ if(user) { %>
                 <li>Welcome, <%= user %></li>
                 <li><a href="/posts/submit">New Blog</a></li>
-                <li><a href="/user/<%= user%>/posts/">MyBlogs</a></li>
+                <li><a href="/user/<%= user%>/posts">MyBlogs</a></li>
                 <li><a href="/user/logout">Logout</a></li>
               <% }} catch { %>
                 <li><a href="/user/register">Register</a></li>

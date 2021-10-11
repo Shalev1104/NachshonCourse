@@ -9,6 +9,6 @@
     </div>
 <% }); %>
 <script>
-    if(window.location.pathname === "/posts")
-        $('.blog').on("dblclick", e => expandPost(e.currentTarget));
+    if(window.location.pathname.endsWith("/posts"))
+        $('.blog').on("dblclick", e => expandPost($(e.currentTarget).attr('id'), window.location.pathname));
 </script>
