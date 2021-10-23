@@ -1,8 +1,8 @@
-.card-functions {
-  position: absolute;
-  right: 20px;
-  bottom: 20px;
+
+.card {
+  width : 270px;
+  height : 200px;
 }
-.card-functions a {
-  margin: 5px;
+.card-functions {
+  padding: inherit;
 }

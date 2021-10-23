@@ -1,15 +1,44 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import Card from './components/Card';
+import Home from './components/Home';
+import { useLocation, Switch, Route, useHistory } from 'react-router-dom'
+import TodoPopup from './components/modals/TodoPopup';
+import { useEffect, useState } from 'react';
+import UpdateTodo from './components/UpdateTodo';
 
-function App() : JSX.Element {
-  const todos = [{expirationDate : '01/01/2000', title : 'adada', description : 'dasdasdasdsa', color : '#ff00ff', status : 'd', id : 1 }, {expirationDate : '02/02/2020', title : 'nvkxnvkx', description : 'dfodsjfojsdo', color : '#00ff00', status : 'f', id : 2}]
+export default function App() : JSX.Element {
+  const location = useLocation();
+  const history = useHistory();
+  type state = {
+    background : Location,
+    title : string,
+    description : string,
+    expirationDate : Date
+  }
+  let background : any;
+
+  
+  if(typeof location.state === "object")
+    background = location.state && (location.state as state).background;
+
+  const [modal, setModal] = useState(false);
+  const toggle = () => {
+    setModal(!modal);
+    history.goBack();
+  };
+
+  useEffect(() => {
+    setModal(background);
+  },[location, background]);
+  
   return (
-    <div>
-    { todos.map(todo => <Card {...todo} />) }
-    </div>
+    <>
+        <Switch location={ background || location }>
+          <Route exact path = "/" component= { Home }/>
+          <Route path={ `/todos/:id` } component={UpdateTodo}/>
+        </Switch>
+        { modal && <TodoPopup show={ modal } onHide={ toggle } title="Update Task" values= {{...location.state as state}}/>} 
+    </>
   );
 }
-
-export default App;

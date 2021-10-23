@@ -1,26 +1,26 @@
 import '../App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
+import todo from '../../model/todo';
+import { Link, useLocation } from 'react-router-dom';
 
-function Card( {expirationDate, title, description, color, status, id} : any) : JSX.Element {
-  console.log(expirationDate, title, description, color, status, id);
+export default function Card( {id, title, description, color, status, expirationDate} : todo) : JSX.Element {
+  const rgbCol = `rgb(${color.red},${color.green},${color.blue})`;
+
   return (
-        <div className = "card shadow rounded" key={id} style={{borderTop:"4px solid " + color, width : "270px", height : "200px"}}>
-          <div className="card-header text-primary" style={{display : 'flex', justifyContent : 'space-between'}}>
-            <div>{expirationDate}</div>
+        <div className = "card shadow rounded m-2" style={{borderTop:`4px solid ${rgbCol}`}}>
+          <div className="card-header text-primary d-flex justify-content-between">
+            <div>{expirationDate.toDateString()}</div>
             <div>Active</div>
           </div>
-          <div className="card-body p-3">
+          <div className="card-body p-3 position-relative">
             <h4 className="card-title">{title}</h4>
-            <p className="lead card-description" style={{fontSize:"17px"}}>{description}</p>
-            <div className="card-functions">
-              <a href="#" className="bi bi-pencil-square mr-3" style={{color}}></a>
-              <a href="#" className="bi bi-trash" style={{color}}></a>
+            <p className="lead card-description" style={{fontSize:"1rem"}}>{description}</p>
+            <div className="card-functions position-absolute bottom-0 end-0">
+              <Link to={{pathname : `/todos/${id}`, state : { background : useLocation(), title, description, expirationDate } }} className="bi bi-pencil-square mx-3" style={{color : rgbCol}}/>
+              <Link to="#" className="bi bi-trash" style={{color : rgbCol}}/>
             </div>
           </div>
         </div>
   );
 }
-
-
-export default Card;

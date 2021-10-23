@@ -9,6 +9,6 @@ CREATE TABLE TODO(
     id int PRIMARY KEY IDENTITY,
     title varchar(32) not null,
     description varchar(max),
-    expirationDate varchar(10) not null,
+    expirationDate date not null,
     statusId int FOREIGN KEY REFERENCES STATUSES(id)
 );
