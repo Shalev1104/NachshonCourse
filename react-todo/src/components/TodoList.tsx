@@ -1,13 +1,38 @@
-import '../App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Card from './Card';
+import useFetch from '../hooks/useFetch';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
+import todo from '../../server/model/todo';
 
-export default function TodoList() : JSX.Element {
-  const todos = [{id : 1, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Active', expirationDate : new Date(2002, 4, 11)}, {id : 2, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Active', expirationDate : new Date(2002, 4, 11)}, {id : 3, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Completed', expirationDate : new Date(2002, 4, 11)}, {id : 4, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Irrelevant', expirationDate : new Date(2002, 4, 11)}, {id : 5, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Overdue', expirationDate : new Date(2002, 4, 11)},{id : 6, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Active', expirationDate : new Date(2002, 4, 11)}, {id : 8, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Active', expirationDate : new Date(2002, 4, 11)}, {id : 7, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Active', expirationDate : new Date(2002, 4, 11)}, {id : 9, title : 'wash the dishes', description : 'kdjsadkjask', color : {red : 0, green : 255, blue : 0}, status : 'Active', expirationDate : new Date(2002, 4, 11)}];
+function generateColor()
+{
+  const generate = () => { return Math.floor(Math.random() * 256); }
+  return { red : generate(), green : generate(), blue : generate() } 
+}
+export default function TodoList({ todos, setTodos } : {todos : todo[]|null, setTodos : React.Dispatch<React.SetStateAction<todo[] | null>>}) : JSX.Element {
+
+  const {fetchData, data, loading, error} = useFetch();
+  const url = useLocation().pathname;
+
+  useEffect(() => {
+    fetchData(url, 'GET');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if(data)
+    {
+      setTodos(data);
+    }
+  }, [data]);
+
   return (
     <div className = 'card-container d-flex flex-wrap justify-content-center'>
-    { todos.map(todo => <Card {...todo} key={todo.id} />) }
+    { loading ? <div>Loading...</div> :
+      error ? <div className='alert alert-danger p-2 text-center d-block' role="alert">{error}</div>  :
+      todos && todos.length > 0 ? todos.map(todo => <Card {...todo} color={generateColor()} key={todo.id} />) : <p>No Tasks available</p>}
     </div>
   );
 }
