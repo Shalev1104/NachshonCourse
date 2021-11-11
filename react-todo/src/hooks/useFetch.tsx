@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 const useFetch = () => {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const { user } = useAuth();
 
     const fetchData = async (url : string, method : string, {...body} = {} ) => {
         setLoading(true);
@@ -12,9 +14,12 @@ const useFetch = () => {
             const res = await fetch(url, {
                 method,
                 ...Object.keys({...body}).length > 0 && {body : JSON.stringify({...body})},
-                headers : {'Content-Type': 'application/json'}
+                headers : {'Content-Type': 'application/json', ...user && {'Authorization' : `Bearer ${await user.getIdToken()}`}}
             });
-            setData(await res.json());
+            const data = await res.json();
+            if(!res.ok)
+                throw new Error(data);
+            setData(data);
         }
         catch(err)
         {

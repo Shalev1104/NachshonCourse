@@ -12,7 +12,7 @@ export default function Card( {id, title, description, color, status, expiration
         <div className = "card shadow rounded m-2" style={{borderTop:`4px solid ${rgbCol}`}}>
           <div className="card-header text-primary d-flex justify-content-between">
             <div>{expirationDate}</div>
-            <div>Active</div>
+            <div>{status}</div>
           </div>
           <div className="card-body p-3 position-relative">
             <h4 className="card-title">{title}</h4>

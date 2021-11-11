@@ -6,5 +6,6 @@ SQL/tsconfig.json
 SQL/requests.rest
 SQL/model/config.ts
 SQL/model/config.js
-**node_modules
 react-todo/tsconfig.json
+react-todo/node_modules
+node_modules

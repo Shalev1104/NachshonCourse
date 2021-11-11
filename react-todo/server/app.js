@@ -10,6 +10,7 @@ var port = process.env.PORT || 4000;
 app.use(express_1.default.json());
 app.use('/todos', require('./routes/todos'));
 app.use('/users', require('./routes/users'));
+app.use('/auth', require('./routes/auth'));
 app.listen(port, function () {
     console.log("listening to port : " + port);
 });

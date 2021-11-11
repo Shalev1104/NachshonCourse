@@ -59,7 +59,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.update = exports.remove = exports.get = exports.insert = void 0;
-var firebaseConfig_1 = require("./firebaseConfig");
+var firebaseConfig_1 = require("../../src/config/firebaseConfig");
 function insert(table, _a) {
     var props = __rest(_a, []);
     return __awaiter(this, void 0, void 0, function () {

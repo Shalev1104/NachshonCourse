@@ -1,9 +1,11 @@
-import { Modal, Spinner } from 'react-bootstrap';
+import { Modal } from 'react-bootstrap';
 import { useEffect } from 'react';
 import useFetch from '../../hooks/useFetch';
 import { useLocation } from 'react-router';
+import ButtonSpinner from '../ButtonSpinner';
 
-const DeletePopup = (props : {show : boolean, onHide : () => void, title : string, id : string, methods : { removeTodo : (id : string) => void}}) => {
+
+const DeletePopup = (props : {show : boolean, onHide : () => void, title : string, id : string, methods : { removeTodo : (id : string) => void}}) : JSX.Element => {
     const url = useLocation().pathname;
     const { fetchData, data, loading, error } = useFetch();
 
@@ -33,13 +35,7 @@ const DeletePopup = (props : {show : boolean, onHide : () => void, title : strin
         </p>
         </Modal.Body>
         <Modal.Footer>
-        <button className="btn btn-primary" id="deleteTodo" type="submit" disabled={loading}>{loading? <Spinner
-        as="span"
-        animation="border"
-        size="sm"
-        role="status"
-        aria-hidden="true"
-        /> : "Delete" }</button>
+        <button className="btn btn-primary" id="deleteTodo" type="submit" disabled={loading}>{loading? <ButtonSpinner/> : "Delete" }</button>
         </Modal.Footer>
         </form>
     </Modal>

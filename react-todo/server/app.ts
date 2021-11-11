@@ -8,6 +8,7 @@ app.use(express.json());
 
 app.use('/todos', require('./routes/todos'));
 app.use('/users', require('./routes/users'));
+app.use('/auth', require('./routes/auth'));
 
 app.listen(port,() => {
     console.log(`listening to port : ${port}`);

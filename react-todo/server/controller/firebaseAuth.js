@@ -1,15 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -46,70 +35,40 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __rest = (this && this.__rest) || function (s, e) {
-    var t = {};
-    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-    if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-                t[p[i]] = s[p[i]];
-        }
-    return t;
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.get = exports.update = exports.remove = exports.insert = void 0;
-var firebase_admin_1 = __importDefault(require("firebase-admin"));
-function insert(_a) {
-    var user = __rest(_a, []);
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, firebase_admin_1.default.auth().createUser(__assign({}, user))];
-                case 1: return [2 /*return*/, _b.sent()];
-            }
-        });
-    });
-}
-exports.insert = insert;
-function remove(id) {
+exports.logout = exports.register = exports.login = void 0;
+var firebaseConfig_1 = require("../../src/config/firebaseConfig");
+var auth_1 = require("firebase/auth");
+function login(credential) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, firebase_admin_1.default.auth().deleteUser(id)];
+                case 0: return [4 /*yield*/, (0, auth_1.signInWithCredential)(firebaseConfig_1.auth, credential)];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
     });
 }
-exports.remove = remove;
-function update(id, _a) {
-    var user = __rest(_a, []);
-    return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0: return [4 /*yield*/, firebase_admin_1.default.auth().updateUser(id, __assign({}, user))];
-                case 1: return [2 /*return*/, _b.sent()];
-            }
-        });
-    });
-}
-exports.update = update;
-function get(id) {
+exports.login = login;
+function register(email, password) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0:
-                    if (!id) return [3 /*break*/, 2];
-                    return [4 /*yield*/, firebase_admin_1.default.auth().getUser(id)];
+                case 0: return [4 /*yield*/, firebaseConfig_1.auth.createUserWithEmailAndPassword(email, password)];
                 case 1: return [2 /*return*/, _a.sent()];
-                case 2: return [4 /*yield*/, firebase_admin_1.default.firestore().collection(__filename).get()];
-                case 3: return [2 /*return*/, _a.sent()];
             }
         });
     });
 }
-exports.get = get;
+exports.register = register;
+function logout() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, (0, auth_1.signOut)(firebaseConfig_1.auth)];
+                case 1: return [2 /*return*/, _a.sent()];
+            }
+        });
+    });
+}
+exports.logout = logout;

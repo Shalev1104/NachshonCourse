@@ -1,6 +1,6 @@
 import todo from '../model/todo';
 import user from '../model/user';
-import { firestore } from './firebaseConfig';
+import { firestore } from '../../src/config/firebaseConfig';
 
 export async function insert (table : string, {...props} : todo|user) : Promise<firebase.default.firestore.DocumentData | undefined> {
     const document = (await firestore.collection(table).add({...props}));

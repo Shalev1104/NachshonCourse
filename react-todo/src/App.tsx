@@ -3,11 +3,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Home from './components/Home';
 import { useLocation, Switch, Route, useHistory, Redirect } from 'react-router-dom'
-import TodoPopup from './components/modals/TodoPopup';
 import { useEffect, useState } from 'react';
 import UpdateTodo from './components/UpdateTodo';
 import DeletePopup from './components/modals/DeletePopup';
 import todo from '../server/model/todo';
+import TodoPopup from './components/modals/TodoPopup';
+import Auth from './components/Auth';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './contexts/AuthContext';
 
 export default function App() : JSX.Element {
   const [todos, setTodos] = useState<null|todo[]>(null);
@@ -24,7 +27,7 @@ export default function App() : JSX.Element {
     setTodos(todos && todos.filter(todo => todo.id !== id));
   };
 
-  const isUserAuthenticated = false;
+  const isUserAuthenticated = useAuth().user;
   const location = useLocation();
   const history = useHistory();
   type state = {
@@ -54,15 +57,12 @@ export default function App() : JSX.Element {
   
   return (
     <>
-        <Switch location={ background || location }>
-          <Route exact path = "/" render ={() => {
-            return isUserAuthenticated ? <Redirect to="/login"/> 
-            : <Redirect to="/todos"/>;
-          }}/>
-          <Route exact path="/todos" children={ <Home todos={todos} setTodos={setTodos}/> } />
-          <Route exact path="/login" component={Home} />
-          <Route path={ `/todos/:id` } component={UpdateTodo}/>
-        </Switch>
+          <Switch location={ background || location }>
+            <ProtectedRoute exact path = "/"><Redirect to="/todos"/></ProtectedRoute>
+            <ProtectedRoute exact path="/todos" children={ <Home todos={todos} setTodos={setTodos}/> } />
+            <Route exact path="/auth" component={Auth} />
+            <ProtectedRoute path={ `/todos/:id` } component={UpdateTodo}/>
+          </Switch>
         { modal && (location.state as state).deleteModal && <DeletePopup show={modal} onHide={toggle} title="Confirm delete" id={ (location.state as state).id } methods={{removeTodo}} /> }
         { modal && !(location.state as state).deleteModal && <TodoPopup show={ modal } onHide={ toggle } {...(location.state as state).data ? { title : "Update Task", id : (location.state as state).id, values : (location.state as state).data, methods : {updateTodo} } : { title : "Create Task", methods : {addTodo}}}/> } 
     </>

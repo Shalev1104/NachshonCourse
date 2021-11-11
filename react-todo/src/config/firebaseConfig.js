@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.firestore = exports.auth = void 0;
-// Import the functions you need from the SDKs you need
 var app_1 = __importDefault(require("firebase/compat/app"));
 require("firebase/compat/auth");
 require("firebase/compat/firestore");

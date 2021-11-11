@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import Card from './Card';
 import useFetch from '../hooks/useFetch';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import todo from '../../server/model/todo';
 
@@ -26,7 +26,7 @@ export default function TodoList({ todos, setTodos } : {todos : todo[]|null, set
     {
       setTodos(data);
     }
-  }, [data]);
+  }, [data, setTodos]);
 
   return (
     <div className = 'card-container d-flex flex-wrap justify-content-center'>
