@@ -20,6 +20,7 @@ const DeletePopup = (props : {show : boolean, onHide : () => void, title : strin
             props.methods.removeTodo(props.id);
             props.onHide();
         }
+            // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data])
 
     return (

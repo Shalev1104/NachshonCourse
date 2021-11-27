@@ -63,7 +63,7 @@ var Admin = /** @class */ (function (_super) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + User_1.User.table + ";")];
+                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM ".concat(User_1.User.table, ";"))];
                     case 1: return [4 /*yield*/, (_a.sent()).recordset[0]];
                     case 2: return [2 /*return*/, _a.sent()];
                 }

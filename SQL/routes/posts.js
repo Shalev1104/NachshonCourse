@@ -130,7 +130,7 @@ router.get('/:id', function (req, res, next) { return __awaiter(void 0, void 0, 
                 post = _e.sent();
                 _b = (_a = res).render;
                 _c = ['post'];
-                _d = { title: post[0].title, action: "/posts/" + postId + "/comments", posts: post };
+                _d = { title: post[0].title, action: "/posts/".concat(postId, "/comments"), posts: post };
                 return [4 /*yield*/, userVotes(res.locals.user)];
             case 2:
                 _d.votes = _e.sent();
@@ -327,7 +327,7 @@ function parseUser(userName) {
     });
 }
 function createTemplate(view, options) {
-    var templatePath = path.resolve(__dirname, "../views/" + view + ".ejs");
+    var templatePath = path.resolve(__dirname, "../views/".concat(view, ".ejs"));
     var posts_template = ejs.compile(ejs.fileLoader(templatePath, 'utf8'), { filename: templatePath });
     return posts_template(options);
 }

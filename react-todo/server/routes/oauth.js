@@ -35,36 +35,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Comment = void 0;
-var sql_1 = require("./sql");
-var Comment = /** @class */ (function () {
-    function Comment(postId, userId, comment) {
-        this.postId = postId;
-        this.userId = userId;
-        this.comment = comment;
-    }
-    Comment.prototype.insert = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, sql_1.Model.insert(Comment.table, Object.values(this))];
-                    case 1: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    Comment.getPostComments = function (postId) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("\n        SELECT cm.*,us.userName FROM ".concat(Comment.table, " as cm \n        INNER JOIN Users as us on us.id=cm.userId\n        where postId=").concat(postId, "\n        order by cm.id desc"))];
-                    case 1: return [2 /*return*/, (_a.sent()).recordset];
-                }
-            });
-        });
-    };
-    Comment.table = 'Comments';
-    return Comment;
-}());
-exports.Comment = Comment;
+var express_1 = __importDefault(require("express"));
+var superagent_1 = __importDefault(require("superagent"));
+var router = express_1.default.Router();
+router.get('/authenticate/:code', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var code, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                code = req.params.code;
+                if (!code)
+                    return [2 /*return*/, res.status(400).json({ message: 'Not received params' })];
+                return [4 /*yield*/, superagent_1.default.post("https://github.com/login/oauth/access_token")
+                        .send({
+                        client_id: process.env.GITHUB_APP_ID,
+                        client_secret: process.env.GITHUB_CLIENT_SECRET,
+                        code: code
+                    })
+                        .set('Accept', 'application/json')];
+            case 1:
+                response = _a.sent();
+                if (!response.ok)
+                    return [2 /*return*/, res.status(403).json(response.error)];
+                return [2 /*return*/, res.status(200).json(response.body)];
+        }
+    });
+}); });
+module.exports = router;

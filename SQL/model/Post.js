@@ -67,7 +67,7 @@ var Post = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM PostType where PostType.type='" + this._type + "'")];
+                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM PostType where PostType.type='".concat(this._type, "'"))];
                     case 1: return [2 /*return*/, (_a.sent()).recordset[0].id];
                 }
             });
@@ -77,7 +77,7 @@ var Post = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getPosts("WHERE po.id=" + id)];
+                    case 0: return [4 /*yield*/, this.getPosts("WHERE po.id=".concat(id))];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -87,7 +87,7 @@ var Post = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("\n        SELECT po.id,\n            po.title,\n            CASE WHEN po.description IS NULL THEN '' ELSE po.description END AS description,\n            CONVERT(varchar, po.pDate, 104) AS pDate,\n            pt.type,\n            us.userName,\n            SUM(CASE WHEN vt.isLike = 1 THEN 1 ELSE 0 END) AS upvotes,\n            SUM(CASE WHEN vt.isLike = 0 THEN 1 ELSE 0 END) AS downvotes\nFROM " + Post.table + " po\n     INNER JOIN PostType pt ON po.typeId = pt.id\n     INNER JOIN Users us ON po.userId = us.id\n     LEFT OUTER JOIN Votes vt ON vt.postId = po.id\n" + (where ? where : '') + "\n\nGROUP BY po.id,\n         po.pDate,\n         po.title,\n         CASE WHEN po.description IS NULL THEN '' ELSE po.description END,\n         pt.type,\n         us.userName\n" + (order ? order : '') + ";\n         ")];
+                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("\n        SELECT po.id,\n            po.title,\n            CASE WHEN po.description IS NULL THEN '' ELSE po.description END AS description,\n            CONVERT(varchar, po.pDate, 104) AS pDate,\n            pt.type,\n            us.userName,\n            SUM(CASE WHEN vt.isLike = 1 THEN 1 ELSE 0 END) AS upvotes,\n            SUM(CASE WHEN vt.isLike = 0 THEN 1 ELSE 0 END) AS downvotes\nFROM ".concat(Post.table, " po\n     INNER JOIN PostType pt ON po.typeId = pt.id\n     INNER JOIN Users us ON po.userId = us.id\n     LEFT OUTER JOIN Votes vt ON vt.postId = po.id\n").concat(where ? where : '', "\n\nGROUP BY po.id,\n         po.pDate,\n         po.title,\n         CASE WHEN po.description IS NULL THEN '' ELSE po.description END,\n         pt.type,\n         us.userName\n").concat(order ? order : '', ";\n         "))];
                     case 1: return [2 /*return*/, ((_a.sent()).recordsets[0])];
                 }
             });
@@ -99,7 +99,7 @@ var Post = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         search == "''" ? delete this.filters.search
-                            : this.filters.search = "(title like '%" + search + "%' OR description like '%" + search + "%')";
+                            : this.filters.search = "(title like '%".concat(search, "%' OR description like '%").concat(search, "%')");
                         return [4 /*yield*/, this.getPosts(this.getFilters(), this.order)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
@@ -111,7 +111,7 @@ var Post = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        this.filters.user = "us.userName = '" + user + "'";
+                        this.filters.user = "us.userName = '".concat(user, "'");
                         return [4 /*yield*/, this.getPosts(this.getFilters(), this.order)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
@@ -124,7 +124,7 @@ var Post = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         type == "''" ? delete this.filters.type
-                            : this.filters.type = "pt.type='" + type + "'";
+                            : this.filters.type = "pt.type='".concat(type, "'");
                         return [4 /*yield*/, this.getPosts(this.getFilters(), this.order)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
@@ -155,7 +155,7 @@ var Post = /** @class */ (function () {
     };
     Post.getFilters = function () {
         if (Object.values(this.filters).length > 0)
-            return "WHERE " + Object.values(this.filters).join("AND ");
+            return "WHERE ".concat(Object.values(this.filters).join("AND "));
         return '';
     };
     Post.reset = function () {

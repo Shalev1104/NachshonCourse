@@ -1,5 +1,5 @@
 import express from 'express';
-import { OAuth2Client } from 'google-auth-library';
+import { auth } from 'firebase-admin';
 
 export default function verifyFirebaseToken (req : express.Request, res : express.Response, next : express.NextFunction) {
     
@@ -8,14 +8,9 @@ export default function verifyFirebaseToken (req : express.Request, res : expres
         const token = req.headers['authorization']?.split(' ')[1];
         if(!token)
             throw new Error();
-
-        const googleAppId = process.env.GOOGLE_APP_ID;
-        new OAuth2Client(googleAppId).verifyIdToken({
-            idToken: token,
-            audience: googleAppId
-        })
-        .then(() => next())
-        .catch(() => res.status(403).json({error : "Access denied"}));
+        auth().verifyIdToken(token)
+            .then(() => next())
+            .catch((err) => res.status(403).json((err as Error).message));
     }
     catch
     {

@@ -52,7 +52,7 @@ var Vote = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM " + Vote.table + " WHERE postId ='" + postId + "' AND userId ='" + userId + "';")];
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM ".concat(Vote.table, " WHERE postId ='").concat(postId, "' AND userId ='").concat(userId, "';"))];
                     case 1: return [4 /*yield*/, (_b.sent()).recordset[0]];
                     case 2: return [2 /*return*/, _b.sent()];
                     case 3:
@@ -72,7 +72,7 @@ var Vote = /** @class */ (function () {
                     case 1: return [4 /*yield*/, (_a.sent()).id];
                     case 2:
                         userId = _a.sent();
-                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + Vote.table + " where userId='" + userId + "';")];
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM ".concat(Vote.table, " where userId='").concat(userId, "';"))];
                     case 3: return [2 /*return*/, (_a.sent()).recordset];
                 }
             });
@@ -88,7 +88,7 @@ var Vote = /** @class */ (function () {
                         return [4 /*yield*/, User_1.User.isExists(username)];
                     case 1:
                         userId = (_b.sent()).id;
-                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + Vote.table + " where userId='" + userId + "' AND postId IN(" + posts.map(function (post) { return post.id; }).join(",") + ");")];
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM ".concat(Vote.table, " where userId='").concat(userId, "' AND postId IN(").concat(posts.map(function (post) { return post.id; }).join(","), ");"))];
                     case 2: return [2 /*return*/, (_b.sent()).recordset];
                     case 3:
                         _a = _b.sent();

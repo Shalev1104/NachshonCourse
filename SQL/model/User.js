@@ -54,7 +54,7 @@ var User = /** @class */ (function () {
                 switch (_b.label) {
                     case 0:
                         _b.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM " + User.table + " WHERE userName='" + userName + "';")];
+                        return [4 /*yield*/, sql_1.Model.runQuery("SELECT * FROM ".concat(User.table, " WHERE userName='").concat(userName, "';"))];
                     case 1: return [4 /*yield*/, (_b.sent()).recordset[0]];
                     case 2: return [2 /*return*/, _b.sent()];
                     case 3:
@@ -92,7 +92,7 @@ var User = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM Roles where Roles.name='" + this.constructor.name + "'")];
+                    case 0: return [4 /*yield*/, sql_1.Model.runQuery("SELECT id FROM Roles where Roles.name='".concat(this.constructor.name, "'"))];
                     case 1: return [2 /*return*/, (_a.sent()).recordset[0].id];
                 }
             });

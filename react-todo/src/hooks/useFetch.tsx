@@ -14,12 +14,9 @@ const useFetch = () => {
             const res = await fetch(url, {
                 method,
                 ...Object.keys({...body}).length > 0 && {body : JSON.stringify({...body})},
-                headers : {'Content-Type': 'application/json', ...user && {'Authorization' : `Bearer ${await user.getIdToken()}`}}
+                headers : {'Content-Type': 'application/json', ...user && {'authorization' : `Bearer ${await user?.getIdToken()}`}}
             });
-            const data = await res.json();
-            if(!res.ok)
-                throw new Error(data);
-            setData(data);
+            setData(await res.json());
         }
         catch(err)
         {

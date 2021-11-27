@@ -52,7 +52,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var firebaseMethods_1 = require("../controller/firebaseMethods");
-var router = express_1.default.Router();
+var verifyAuth_1 = __importDefault(require("../middlewares/verifyAuth"));
+var router = express_1.default.Router({ mergeParams: true });
+router.use(verifyAuth_1.default);
 var table = "Todos";
 router.get('/', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, _b;
@@ -60,7 +62,7 @@ router.get('/', function (req, res) { return __awaiter(void 0, void 0, void 0, f
         switch (_c.label) {
             case 0:
                 _b = (_a = res.status(200)).json;
-                return [4 /*yield*/, (0, firebaseMethods_1.get)(table)];
+                return [4 /*yield*/, (0, firebaseMethods_1.get)(table, { userId: req.params.userId })];
             case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
         }
     });
@@ -71,7 +73,7 @@ router.get('/:id', function (req, res) { return __awaiter(void 0, void 0, void 0
         switch (_c.label) {
             case 0:
                 _b = (_a = res.status(200)).json;
-                return [4 /*yield*/, (0, firebaseMethods_1.get)(table, req.params.id)];
+                return [4 /*yield*/, (0, firebaseMethods_1.get)(table, { id: req.params.id })];
             case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
         }
     });
@@ -82,7 +84,7 @@ router.post('/', function (req, res) { return __awaiter(void 0, void 0, void 0, 
         switch (_c.label) {
             case 0:
                 _b = (_a = res.status(201)).json;
-                return [4 /*yield*/, (0, firebaseMethods_1.insert)(table, __assign({}, req.body))];
+                return [4 /*yield*/, (0, firebaseMethods_1.insert)(table, __assign({ userId: req.params.userId }, req.body))];
             case 1: return [2 /*return*/, _b.apply(_a, [_c.sent()])];
         }
     });
@@ -95,7 +97,7 @@ router.put('/:id', function (req, res) { return __awaiter(void 0, void 0, void 0
             case 0:
                 _b = (_a = res.status(200)).json;
                 _c = {};
-                return [4 /*yield*/, (0, firebaseMethods_1.update)(table, req.params.id, __assign({}, req.body))];
+                return [4 /*yield*/, (0, firebaseMethods_1.update)(table, req.params.id, __assign({ userId: req.params.userId }, req.body))];
             case 1: return [2 /*return*/, _b.apply(_a, [(_c.update = _d.sent(), _c)])];
         }
     });

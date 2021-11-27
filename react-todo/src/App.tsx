@@ -14,6 +14,8 @@ import { useAuth } from './contexts/AuthContext';
 
 export default function App() : JSX.Element {
   const [todos, setTodos] = useState<null|todo[]>(null);
+  const { user } = useAuth();
+  const userId = user?.uid;
 
   const addTodo = (todo: todo) => {
     setTodos(todos && [todo, ...todos]);
@@ -27,7 +29,6 @@ export default function App() : JSX.Element {
     setTodos(todos && todos.filter(todo => todo.id !== id));
   };
 
-  const isUserAuthenticated = useAuth().user;
   const location = useLocation();
   const history = useHistory();
   type state = {
@@ -48,7 +49,7 @@ export default function App() : JSX.Element {
   const [modal, setModal] = useState(false);
   const toggle = () => {
     setModal(!modal);
-    history.replace('/todos')
+    history.replace(`/users/${userId}/todos`);
   };
 
   useEffect(() => {
@@ -58,10 +59,10 @@ export default function App() : JSX.Element {
   return (
     <>
           <Switch location={ background || location }>
-            <ProtectedRoute exact path = "/"><Redirect to="/todos"/></ProtectedRoute>
-            <ProtectedRoute exact path="/todos" children={ <Home todos={todos} setTodos={setTodos}/> } />
+            <ProtectedRoute exact path = {["/","/todos"]}><Redirect to={`/users/${userId}/todos`}/></ProtectedRoute>
+            <ProtectedRoute exact path={`/users/${userId}/todos`} children={ <Home todos={todos} setTodos={setTodos}/> } />
             <Route exact path="/auth" component={Auth} />
-            <ProtectedRoute path={ `/todos/:id` } component={UpdateTodo}/>
+            <ProtectedRoute path={ `/users/${userId}/todos/:id` } component={UpdateTodo}/>
           </Switch>
         { modal && (location.state as state).deleteModal && <DeletePopup show={modal} onHide={toggle} title="Confirm delete" id={ (location.state as state).id } methods={{removeTodo}} /> }
         { modal && !(location.state as state).deleteModal && <TodoPopup show={ modal } onHide={ toggle } {...(location.state as state).data ? { title : "Update Task", id : (location.state as state).id, values : (location.state as state).data, methods : {updateTodo} } : { title : "Create Task", methods : {addTodo}}}/> } 

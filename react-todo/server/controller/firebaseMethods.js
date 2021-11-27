@@ -59,14 +59,14 @@ var __rest = (this && this.__rest) || function (s, e) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.update = exports.remove = exports.get = exports.insert = void 0;
-var firebaseConfig_1 = require("../../src/config/firebaseConfig");
+var adminSDK_1 = require("../config/adminSDK");
 function insert(table, _a) {
     var props = __rest(_a, []);
     return __awaiter(this, void 0, void 0, function () {
         var document, _b;
         return __generator(this, function (_c) {
             switch (_c.label) {
-                case 0: return [4 /*yield*/, firebaseConfig_1.firestore.collection(table).add(__assign({}, props))];
+                case 0: return [4 /*yield*/, adminSDK_1.firestore.collection(table).add(__assign({}, props))];
                 case 1:
                     document = (_c.sent());
                     _b = [{ id: document.id }];
@@ -77,16 +77,17 @@ function insert(table, _a) {
     });
 }
 exports.insert = insert;
-function get(table, id) {
+function get(table, _a) {
+    var userId = _a.userId, id = _a.id;
     return __awaiter(this, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
                     if (!id) return [3 /*break*/, 2];
-                    return [4 /*yield*/, firebaseConfig_1.firestore.collection(table).doc(id).get()];
-                case 1: return [2 /*return*/, (_a.sent()).data()];
-                case 2: return [4 /*yield*/, firebaseConfig_1.firestore.collection(table).get()];
-                case 3: return [2 /*return*/, (_a.sent()).docs.map(function (doc) { return __assign({ id: doc.id }, doc.data()); })];
+                    return [4 /*yield*/, adminSDK_1.firestore.collection(table).doc(id).get()];
+                case 1: return [2 /*return*/, (_b.sent()).data()];
+                case 2: return [4 /*yield*/, adminSDK_1.firestore.collection(table).where('userId', "==", userId).get()];
+                case 3: return [2 /*return*/, (_b.sent()).docs.map(function (doc) { return __assign({ id: doc.id }, doc.data()); })];
             }
         });
     });
@@ -96,7 +97,7 @@ function remove(table, id) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, firebaseConfig_1.firestore.collection(table).doc(id).delete()];
+                case 0: return [4 /*yield*/, adminSDK_1.firestore.collection(table).doc(id).delete()];
                 case 1: return [2 /*return*/, _a.sent()];
             }
         });
@@ -108,7 +109,7 @@ function update(table, id, _a) {
     return __awaiter(this, void 0, void 0, function () {
         return __generator(this, function (_b) {
             switch (_b.label) {
-                case 0: return [4 /*yield*/, firebaseConfig_1.firestore.collection(table).doc(id).update(__assign({}, props))];
+                case 0: return [4 /*yield*/, adminSDK_1.firestore.collection(table).doc(id).update(__assign({}, props))];
                 case 1:
                     _b.sent();
                     return [2 /*return*/, __assign({ id: id }, props)];
