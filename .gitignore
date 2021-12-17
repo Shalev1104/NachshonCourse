@@ -7,5 +7,6 @@ SQL/model/config.ts
 SQL/model/config.js
 react-todo/tsconfig.json
 react-todo/server/config/ServiceAccountKey.json
+final-chat/frontend/tsconfig.json
 .env
-
+build
