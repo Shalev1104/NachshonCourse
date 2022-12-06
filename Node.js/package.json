@@ -7,7 +7,7 @@
     "buffer-equal-constant-time": "^1.0.1",
     "dotenv": "^10.0.0",
     "ecdsa-sig-formatter": "^1.0.11",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "jquery": "^3.6.0",
     "jsonwebtoken": "^8.5.1",
     "jwa": "^1.4.1",
