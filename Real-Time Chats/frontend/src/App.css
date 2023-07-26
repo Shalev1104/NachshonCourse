@@ -1,0 +1,7 @@
+.carousel-caption,.carousel-indicators {
+    color:white;
+    mix-blend-mode: difference;
+}
+.carousel-indicators {
+    bottom: -25px;
+}
