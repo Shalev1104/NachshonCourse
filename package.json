@@ -27,7 +27,7 @@
       "firebase-admin": "^10.0.0",
       "jquery": "^3.6.0",
       "jsonwebtoken": "^8.5.1",
-      "mssql": "^7.2.1",
+      "mssql": "^10.0.1",
       "react": "^17.0.2",
       "react-bootstrap": "^2.0.2",
       "react-datepicker": "^4.3.0",
